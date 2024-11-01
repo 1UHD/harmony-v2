@@ -1,0 +1,7 @@
+src/bot_token.py
+
+__pycache__
+src/__pycache__
+src/cogs/__pycache__
+src/testing/__pycache__
+src/tools/__pycache__

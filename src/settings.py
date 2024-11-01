@@ -1,0 +1,21 @@
+from src.bot_token import BOT_TOKEN
+import pathlib
+
+KEY = BOT_TOKEN
+
+HOME_DIR = pathlib.Path(__file__).parent
+COGS_DIR = HOME_DIR / "src" / "cogs"
+
+VERSION = "2.0"
+BETA = True
+LOGO = """
+ _   _                                        
+| | | | __ _ _ __ _ __ ___   ___  _ __  _   _ 
+| |_| |/ _` | '__| '_ ` _ \\ / _ \\| '_ \\| | | |
+|  _  | (_| | |  | | | | | | (_) | | | | |_| |
+|_| |_|\\__,_|_|  |_| |_| |_|\\___/|_| |_|\\__, |
+                                        |___/
+"""
+debug_mode = True
+
+bitrate = 128
