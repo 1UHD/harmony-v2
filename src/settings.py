@@ -4,7 +4,7 @@ import pathlib
 KEY = BOT_TOKEN
 
 HOME_DIR = pathlib.Path(__file__).parent
-COGS_DIR = HOME_DIR / "src" / "cogs"
+COGS_DIR = HOME_DIR / "cogs"
 
 VERSION = "2.0"
 BETA = True

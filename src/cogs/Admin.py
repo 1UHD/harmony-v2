@@ -1,6 +1,5 @@
 import discord
 from discord.ext import commands
-import pathlib
 
 import src.tools.embeds as embeds
 from src.tools.logging import logger
