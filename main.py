@@ -1,7 +1,9 @@
 import discord
 from discord.ext import commands
-from src.settings import KEY, LOGO, VERSION, BETA, COGS_DIR, debug_mode
+from src.settings import KEY, LOGO, VERSION, BETA, COGS_DIR, debug_mode, testing_mode
 from src.tools.logging import logger, Colors
+
+import src.testing.filepathing as file_test
 
 class Main:
 
@@ -46,4 +48,8 @@ class Main:
 harmony = Main()
 
 if __name__ == "__main__":
-    harmony.run()
+    if not testing_mode:
+        harmony.run()
+    else:
+        logger.info("Running tests")
+        file_test.main()

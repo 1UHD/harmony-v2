@@ -4,6 +4,7 @@ class Queue:
 
     def __init__(self) -> None:
         self.queue = []
+        self.current = None
 
         self.paused = False
         self.looped = False
@@ -24,10 +25,10 @@ class Queue:
         return len(self.queue)
     
     def pause(self) -> None:
-        self.pause = True
+        self.paused = True
 
     def unpause(self) -> None:
-        self.pause = False
+        self.paused = False
 
     def is_paused(self) -> bool:
         return self.paused
@@ -40,6 +41,12 @@ class Queue:
 
     def is_looped(self) -> bool:
         return self.looped
+    
+    def get_current(self) -> Song.Song:
+        return self.current
+    
+    def set_current(self, song: Song.Song | None) -> None:
+        self.current = song
     
 
 queue = Queue()

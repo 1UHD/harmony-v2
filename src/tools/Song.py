@@ -23,6 +23,7 @@ class Song:
             }],
             "noplaylist": True,
             "quiet": True,
+            "no-warnings": True,
         }
 
         with yt_dlp.YoutubeDL(ytdlp) as ydl:

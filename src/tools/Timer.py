@@ -1,5 +1,5 @@
 import time
-from src.tools.Queue import Queue
+from src.tools.Queue import queue
 
 class Timer:
     
@@ -22,7 +22,7 @@ class Timer:
         self.time_elapsed = 0
 
     def get_time_elapsed(self) -> None:
-        if Queue.is_paused():
+        if queue.is_paused():
             return self.time_elapsed
         else:
             return self.time_elapsed + (time.time() - self.song_started)
