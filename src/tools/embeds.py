@@ -1,8 +1,13 @@
 import discord
 from discord.ext import commands
 
+from src.tools.logging import logger
+
 async def send_embed(title: str,
                     description: str = None,
+                    footer: str = None,
+                    thumbnail: str = None,
+                    image: str = None,
                     interaction: discord.Interaction = None,
                     context: commands.Context = None,
                     color: discord.Color = discord.Color.blurple(),
@@ -16,6 +21,17 @@ async def send_embed(title: str,
         description=description,
         color=color
     )
+    
+    if footer:
+        embed.set_footer(text=footer)
+
+    if thumbnail:
+        logger.debug(thumbnail)
+        embed.set_thumbnail(url=thumbnail)
+
+    if image:
+        embed.set_image(url=image)
+
     if interaction:
         message = await interaction.response.send_message(embed=embed, view=view, delete_after=delete_after, ephemeral=ephemeral, silent=silent)
         return message

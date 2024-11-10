@@ -5,6 +5,7 @@ class Queue:
     def __init__(self) -> None:
         self.queue = []
         self.current = None
+        self.current_index = 0
 
         self.paused = False
         self.looped = False
@@ -23,6 +24,17 @@ class Queue:
 
     def get_length(self) -> int:
         return len(self.queue)
+    
+    def get_duration(self) -> int:
+        remaining = 0
+
+        for song in self.queue:
+            remaining += song.length
+
+        return remaining
+    
+    def get_formatted(self) -> str:
+        return "\n".join(f"{i + 1}. {song.title}" for i, song in enumerate(self.queue))
     
     def pause(self) -> None:
         self.paused = True
@@ -47,6 +59,11 @@ class Queue:
     
     def set_current(self, song: Song.Song | None) -> None:
         self.current = song
+
+    def get_current_index(self) -> int:
+        return self.current_index
     
+    def set_current_index(self, index: int) -> None:
+        self.current_index = index
 
 queue = Queue()

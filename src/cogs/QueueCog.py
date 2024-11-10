@@ -69,17 +69,20 @@ class QueueCog(commands.Cog):
             await embed.send_error("the fucking voice client doesnt fucking exist and i dont fucking know why ", context=ctx)
             return
 
-        if queue.get_length() < 1:
+        if queue.get_length() < 1 and not queue.is_looped() and not ctx.voice_client.is_playing():
             queue.set_current(None)
             await embed.send_error("Queue is empty.", context=ctx)
             return
         
         if not ctx.voice_client.is_playing():
 
-            song = queue.get_first_song()
+            if not queue.is_looped():
+                song = queue.get_first_song()
+            else:
+                song = queue.get_current()
             queue.set_current(song=song)
 
-            if not queue.is_looped():
+            if queue.get_length() >= 1 and not queue.is_looped():
                 queue.remove(0)
 
             queue.unpause()
@@ -109,6 +112,18 @@ class QueueCog(commands.Cog):
             return "unknown_link"
         else:
             return "no_link"
+        
+    def _seconds_to_time(self, seconds: int) -> str:
+        days, seconds = divmod(seconds, 86400)  # 86400 seconds in a day
+        hours, seconds = divmod(seconds, 3600)  # 3600 seconds in an hour
+        minutes, seconds = divmod(seconds, 60)  # 60 seconds in a minute
+
+        if days > 0:
+            return f"{days:02}:{hours:02}:{minutes:02}:{seconds:02}"
+        elif hours > 0:
+            return f"{hours:02}:{minutes:02}:{seconds:02}"
+        else:
+            return f"{minutes:02}:{seconds:02}"
 
     @commands.hybrid_group(name="queue", description="Provides information about the queue.")
     async def queue(self, ctx: commands.Context) -> None:
@@ -120,14 +135,31 @@ class QueueCog(commands.Cog):
         if not self.opus_loaded:
             await self.bot.close()
 
+        if ctx.voice_client.is_playing():
+            await embed.send_error("The bot is already playing.")
+            return
+
         await self._handle_vc(ctx=ctx)
         await self._play_next_song(ctx=ctx)
 
     @queue.command(name="list", description="Displays the queue.")
     async def queue_list(self, ctx: commands.Context) -> None:
-        if queue.get_length() < 1:
-            await embed.send_embed(title="The queue is empty.")
+        if queue.get_length() < 1 and not queue.get_current():
+            await embed.send_embed(title="The queue is empty.", context=ctx)
             return
+        
+        remaining_time = queue.get_duration() 
+
+        if queue.get_current():
+            remaining_time += queue.get_current().length - round(timer.get_time_elapsed())
+        remaining_songs = queue.get_length()
+
+        await embed.send_embed(
+            title=f"Currently: {queue.get_current().title if queue.get_current() else 'None'}",
+            description=f"{queue.get_formatted()}",
+            footer=f"{remaining_songs} song{'s' if queue.get_length() > 1 else ''}; {self._seconds_to_time(remaining_time)} remaining",
+            context=ctx
+        )
 
     @commands.hybrid_command(name="add", description="Adds a song to the queue via a link or YouTube url.")
     async def add(self, ctx: commands.Context, prompt: str) -> None:

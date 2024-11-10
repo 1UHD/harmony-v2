@@ -13,8 +13,16 @@ class Misc(commands.Cog):
         self.bot = bot
 
     def _seconds_to_time(self, seconds: int) -> str:
-        minutes, secs = divmod(seconds, 60)
-        return f"{minutes}:{secs:02}"
+        days, seconds = divmod(seconds, 86400)  # 86400 seconds in a day
+        hours, seconds = divmod(seconds, 3600)  # 3600 seconds in an hour
+        minutes, seconds = divmod(seconds, 60)  # 60 seconds in a minute
+
+        if days > 0:
+            return f"{days:02}:{hours:02}:{minutes:02}:{seconds:02}"
+        elif hours > 0:
+            return f"{hours:02}:{minutes:02}:{seconds:02}"
+        else:
+            return f"{minutes:02}:{seconds:02}"
 
     @commands.hybrid_command(name="playing", description="Provides info on the currently playing song.")
     async def playing(self, ctx: commands.Context) -> None:
@@ -34,6 +42,7 @@ class Misc(commands.Cog):
         await embed.send_embed(
             title=queue.get_current().title,
             description=f"{self._seconds_to_time(time_elapsed)} {''.join(i for i in progress)} {self._seconds_to_time(song_length)}",
+            thumbnail=queue.get_current().thumbnail,
             context=ctx
         )
 

@@ -21,7 +21,7 @@ class Timer:
         self.song_started = 0
         self.time_elapsed = 0
 
-    def get_time_elapsed(self) -> None:
+    def get_time_elapsed(self) -> int:
         if queue.is_paused():
             return self.time_elapsed
         else:

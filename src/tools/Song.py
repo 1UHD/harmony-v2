@@ -10,7 +10,7 @@ class Song:
         self.url = url
         self.title = ""
         self.thumbnail = ""
-        self.length = ""
+        self.length = 0
         self.audio = self._get_audio()
 
     def _get_audio(self) -> discord.FFmpegPCMAudio:
