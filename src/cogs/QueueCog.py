@@ -65,25 +65,21 @@ class QueueCog(commands.Cog):
             await ctx.author.voice.channel.connect()
 
     async def _play_next_song(self, ctx: commands.Context) -> None:
+        logger.debug(queue.get_length())
         if not ctx.voice_client:
             await embed.send_error("the fucking voice client doesnt fucking exist and i dont fucking know why ", context=ctx)
             return
 
-        if queue.get_length() < 1 and not queue.is_looped() and not ctx.voice_client.is_playing():
+        if queue.get_length() < 1 and not queue.is_looped():
             queue.set_current(None)
             await embed.send_error("Queue is empty.", context=ctx)
             return
         
         if not ctx.voice_client.is_playing():
+            song = queue.get_song(queue.get_current_index())
 
-            if not queue.is_looped():
-                song = queue.get_first_song()
-            else:
-                song = queue.get_current()
             queue.set_current(song=song)
-
-            if queue.get_length() >= 1 and not queue.is_looped():
-                queue.remove(0)
+            queue.set_current_index(queue.get_current_index() + 1)
 
             queue.unpause()
 
@@ -161,6 +157,23 @@ class QueueCog(commands.Cog):
             context=ctx
         )
 
+    @queue.command(name="remove", description="Removes a song from the queue.")
+    async def queue_remove(self, ctx: commands.Context, index: int) -> None:
+        if queue.get_length() < 1:
+            await embed.send_error(title="Queue is empty.", context=ctx)
+            return
+        
+        if index == queue.get_current_index():
+            await embed.send_error(title="The currently playing song cannot be removed.", context=ctx)
+            return
+        
+        queue.remove(index - 1)
+
+        if index < queue.get_current_index():
+            queue.set_current_index(queue.get_current_index() - 1)
+
+        await embed.send_embed(title=f"Removed {index}", context=ctx)
+
     @commands.hybrid_command(name="add", description="Adds a song to the queue via a link or YouTube url.")
     async def add(self, ctx: commands.Context, prompt: str) -> None:
         is_link = await self._identify_link(query=prompt)
@@ -226,8 +239,16 @@ class QueueCog(commands.Cog):
 
     @commands.hybrid_command(name="loop", description="Loops the music.")
     async def loop(self, ctx: commands.Context) -> None:
+        await embed.send_error(title="Looping is currently unsupported.", context=ctx)
+
+        #TODO: create a working loop command.
+        #this commands logic needs to be rewritten, streamed music is only available once
+        #so in order to replay a song, the audio must be redownloaded.
+        #this creates a lot of issues with the self._play_next_song function as of right now
+        """
         if not ctx.voice_client or (not ctx.voice_client.is_playing() and not queue.is_paused()):
             await embed.send_embed(title="The bot is not playing.", context=ctx)
+            return
 
         if not queue.is_looped():
             queue.loop()
@@ -236,6 +257,7 @@ class QueueCog(commands.Cog):
         else:
             queue.unloop()
             await embed.send_embed(title="The music has been unlooped.", context=ctx)
+        """
 
     @commands.hybrid_command(name="skip", description="Skips the current song.")
     async def skip(self, ctx: commands.Context) -> None:

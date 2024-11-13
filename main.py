@@ -43,7 +43,7 @@ class Main:
 
     def run(self) -> None:
         logger.info("Launching Harmony", True)
-        self.bot.run(token=KEY)
+        self.bot.run(token=KEY, log_handler=None)
 
 harmony = Main()
 

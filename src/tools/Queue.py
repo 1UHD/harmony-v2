@@ -13,8 +13,8 @@ class Queue:
     def add(self, song: Song.Song) -> None:
         self.queue.append(song)
 
-    def get_first_song(self) -> Song.Song:
-        return self.queue[0]
+    def get_song(self, index: int) -> Song.Song:
+        return self.queue[index]
     
     def clear(self) -> None:
         self.queue.clear()
@@ -23,18 +23,31 @@ class Queue:
         self.queue.pop(index)
 
     def get_length(self) -> int:
-        return len(self.queue)
+        return len(self.queue) - self.current_index
     
     def get_duration(self) -> int:
         remaining = 0
 
-        for song in self.queue:
-            remaining += song.length
+        for song in range(self.current_index, len(self.queue) - 1):
+            remaining += self.queue[song].length
 
         return remaining
     
     def get_formatted(self) -> str:
-        return "\n".join(f"{i + 1}. {song.title}" for i, song in enumerate(self.queue))
+        result = []
+    
+        for i, song in enumerate(self.queue):
+            if i == self.current_index - 1:
+                highlighted_song = f"{i + 1}. **{song.title}**"
+
+                if queue.is_looped():
+                    highlighted_song += " (looped)"
+
+                result.append(highlighted_song)
+            else:
+                result.append(f"{i + 1}. {song.title}")
+        
+        return "\n".join(result)
     
     def pause(self) -> None:
         self.paused = True
@@ -46,9 +59,11 @@ class Queue:
         return self.paused
     
     def loop(self) -> None:
+        self.current_index -= 1
         self.looped = True
 
     def unloop(self) -> None:
+        self.current_index += 1
         self.looped = False
 
     def is_looped(self) -> bool:

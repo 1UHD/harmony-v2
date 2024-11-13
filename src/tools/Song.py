@@ -36,4 +36,6 @@ class Song:
             return discord.FFmpegPCMAudio(info_dict["url"], before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5")
 
     def _get_thumbnail(self) -> str:
-        return f"http://img.youtube.com/vi/{self.url}/hqdefault.jpg"
+        vid_id = self.url.replace("https://www.youtube.com/watch?v=", "")
+
+        return f"http://img.youtube.com/vi/{vid_id}/hqdefault.jpg"
