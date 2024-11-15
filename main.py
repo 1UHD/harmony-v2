@@ -3,8 +3,6 @@ from discord.ext import commands
 from src.settings import KEY, LOGO, VERSION, BETA, COGS_DIR, debug_mode, testing_mode
 from src.tools.logging import logger, Colors
 
-import src.testing.filepathing as file_test
-
 class Main:
 
     def __init__(self) -> None:
@@ -46,10 +44,3 @@ class Main:
         self.bot.run(token=KEY, log_handler=None)
 
 harmony = Main()
-
-if __name__ == "__main__":
-    if not testing_mode:
-        harmony.run()
-    else:
-        logger.info("Running tests")
-        file_test.main()

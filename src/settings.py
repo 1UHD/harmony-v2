@@ -17,6 +17,8 @@ LOGO = """
                                         |___/
 """
 debug_mode = True
-testing_mode = False
+testing_mode = True
 
 bitrate = 128
+
+mp3_path = None

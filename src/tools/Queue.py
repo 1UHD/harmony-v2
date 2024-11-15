@@ -72,7 +72,7 @@ class Queue:
     def get_current(self) -> Song.Song:
         return self.current
     
-    def set_current(self, song: Song.Song | None) -> None:
+    def set_current(self, song: Song.Song |  None) -> None:
         self.current = song
 
     def get_current_index(self) -> int:

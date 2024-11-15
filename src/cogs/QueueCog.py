@@ -67,7 +67,10 @@ class QueueCog(commands.Cog):
     async def _play_next_song(self, ctx: commands.Context) -> None:
         logger.debug(queue.get_length())
         if not ctx.voice_client:
-            await embed.send_error("the fucking voice client doesnt fucking exist and i dont fucking know why ", context=ctx)
+            return
+        
+        if ctx.voice_client.is_playing():
+            await embed.send_error(title="The bot is already playing.", context=ctx)
             return
 
         if queue.get_length() < 1 and not queue.is_looped():
