@@ -10,7 +10,7 @@ class MP3Song(Song):
 
     def __init__(self, name: str, path: str):
         super().__init__(url=f"{path}{'/' if not path.endswith('/') else ''}{name}")
-        self.title = name
+        self.title = name.replace(".mp3", "")
 
     def _get_audio(self) -> discord.FFmpegPCMAudio:
         audio = MP3(self.url)
@@ -46,6 +46,7 @@ class MP3Loader:
             logger.error(e)
             return
         
+        mp3_files = sorted(mp3_files)
         return mp3_files
     
     def add_to_queue(self) -> None:
