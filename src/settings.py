@@ -17,7 +17,7 @@ LOGO = """
                                         |___/
 """
 debug_mode = True
-testing_mode = True
+testing_mode = False
 
 bitrate = 128
 

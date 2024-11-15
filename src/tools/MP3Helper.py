@@ -13,13 +13,12 @@ class MP3Song(Song):
         self.title = name
 
     def _get_audio(self) -> discord.FFmpegPCMAudio:
-        #TODO idfk either
         audio = MP3(self.url)
         
         self.length = round(audio.info.length)
         self.thumbnail = None
 
-        return discord.FFmpegPCMAudio(self.url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5")
+        return discord.FFmpegPCMAudio(self.url)
 
 class MP3Loader:
     
@@ -52,16 +51,17 @@ class MP3Loader:
     def add_to_queue(self) -> None:
         paths = self._find_files_in_directory()
 
-        logger.debug(settings.mp3_path)
-
         if not paths or len(paths) < 1:
-            logger.error("No mp3 files were found in that directory!", True)
+            logger.error("No MP3 files were found in that directory!", True)
             return
 
         for s in paths:
-            song = MP3Song(name=s, path=self.path)
+            try:
+                song = MP3Song(name=s, path=self.path)
 
-            queue.add(song=song)
+                queue.add(song=song)
+            except Exception:
+                logger.error(f"'{s}' couldn't be added.", True)
 
 
 mp3loader = MP3Loader()
