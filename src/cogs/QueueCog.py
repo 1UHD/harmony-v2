@@ -69,7 +69,7 @@ class QueueCog(commands.Cog):
         if not ctx.voice_client:
             return
         
-        if ctx.voice_client.is_playing():
+        if ctx.voice_client.is_playing() or queue.is_paused():
             await embed.send_error(title="The bot is already playing.", context=ctx)
             return
 
@@ -177,6 +177,19 @@ class QueueCog(commands.Cog):
 
         await embed.send_embed(title=f"Removed {index}", context=ctx)
 
+    @queue.command(name="clear", description="Clears the queue.")
+    async def queue_clear(self, ctx: commands.Context) -> None:
+        if queue.get_length() < 1:
+            await embed.send_error(title="Queue is empty.", context=ctx)
+            return
+        
+        if ctx.voice_client.is_playing() or queue.is_paused():
+            await embed.send_error(title="The bot is still playing.", context=ctx)
+            return
+        
+        queue.clear()
+
+
     @commands.hybrid_command(name="add", description="Adds a song to the queue via a link or YouTube url.")
     async def add(self, ctx: commands.Context, prompt: str) -> None:
         is_link = await self._identify_link(query=prompt)
@@ -218,6 +231,10 @@ class QueueCog(commands.Cog):
             embed.send_error(title="The bot is not playing.", context=ctx)
             return
         
+        queue.unpause()
+        queue.unloop()
+        queue.set_current(None)
+        queue.set_current_index(0)
         ctx.voice_client.stop()
         await ctx.voice_client.disconnect()
         await embed.send_embed(title="Stopped music.", context=ctx)
