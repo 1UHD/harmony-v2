@@ -50,7 +50,6 @@ class QueueCog(commands.Cog):
             self.bot.close()
             return False
 
-        
 
     async def _handle_vc(self, ctx: commands.Context) -> None:
         if not ctx.author.voice:
@@ -189,6 +188,12 @@ class QueueCog(commands.Cog):
         
         queue.clear()
 
+    @queue.command(name="restart", description="Jumps to the start of the queue.")
+    async def queue_restart(self, ctx: commands.Context) -> None:
+        queue.set_current_index(0)
+
+        await embed.send_embed(title="Jumped to the start of the queue.", context=ctx)
+
 
     @commands.hybrid_command(name="add", description="Adds a song to the queue via a link or YouTube url.")
     async def add(self, ctx: commands.Context, prompt: str) -> None:
@@ -279,14 +284,23 @@ class QueueCog(commands.Cog):
             await embed.send_embed(title="The music has been unlooped.", context=ctx)
         """
 
-    @commands.hybrid_command(name="skip", description="Skips the current song.")
-    async def skip(self, ctx: commands.Context) -> None:
+    @commands.hybrid_command(name="skip", description="Skips x amount of song(s).")
+    async def skip(self, ctx: commands.Context, times: int = 1) -> None:
         if not ctx.voice_client or (not ctx.voice_client.is_playing() and not queue.is_paused()):
             await embed.send_embed(title="The bot is not playing.", context=ctx)
             return
 
-        ctx.voice_client.stop()
-        await embed.send_embed(title="Skipped song.", context=ctx)
+        if times < 1:
+            await embed.send_error(title="You need to skip at least 1 song.")
+            return
+
+        if times < queue.get_length():
+            times = queue.get_length()
+
+        for i in times:
+            ctx.voice_client.stop()
+
+        await embed.send_embed(title=f"Skipped {times} song{'s' if times > 1 else ''}.", context=ctx)
 
 
 async def setup(bot: commands.Bot) -> None:
