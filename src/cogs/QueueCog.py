@@ -294,14 +294,23 @@ class QueueCog(commands.Cog):
             await embed.send_error(title="You need to skip at least 1 song.")
             return
 
-        if times < queue.get_length():
-            times = queue.get_length()
+        if times > queue.get_length():
+            times = queue.get_length() - 1
 
-        for i in times:
-            ctx.voice_client.stop()
+        queue.set_current_index(queue.get_current_index() + (times - 1))
+        ctx.voice_client.stop()
 
         await embed.send_embed(title=f"Skipped {times} song{'s' if times > 1 else ''}.", context=ctx)
 
+    @commands.hybrid_command(name="jump", description="Jumps to a song.")
+    async def jump(self, ctx: commands.Context, song: int) -> None:
+        if song > queue.get_length():
+            song = queue.get_length() - 1
+        elif song < 1:
+            song = 0
+
+        queue.set_current_index(song - 1)
+        await embed.send_embed(title=f"Jumped to {song}. It will play after this song.", context=ctx)
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(QueueCog(bot=bot))
