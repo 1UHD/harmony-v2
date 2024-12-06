@@ -1,10 +1,5 @@
 import argparse
-
-from main import harmony
-from src.tools.logging import logger
-from src.tools.MP3Helper import mp3loader
 import src.settings as settings
-import src.testing.filepathing as file_test
 
 def main() -> None:
     parser = argparse.ArgumentParser()
@@ -22,6 +17,9 @@ def main() -> None:
     settings.mp3_path = args.mp3
     settings.debug_mode = args.debug
     settings.testing_mode = args.test
+
+    from src.tools.logging import logger
+    from src.tools.MP3Helper import mp3loader
     
     if args.mp3:
         logger.info(f"Adding MP3 files in {settings.mp3_path} to the queue!")
@@ -34,10 +32,13 @@ def main() -> None:
         logger.info(f"Launching in test mode.", True)
 
     if not settings.testing_mode:
+        from main import harmony
         harmony.run()
     else:
-        logger.info("Running tests")
+        logger.info("Running tests", True)
+        import src.testing.filepathing as file_test
         file_test.main()
 
 if __name__ == "__main__":
     main()
+

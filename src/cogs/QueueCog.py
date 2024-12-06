@@ -11,6 +11,7 @@ from src.tools.logging import logger
 from src.tools.Song import Song
 from src.tools.Queue import queue
 from src.tools.Timer import timer
+from src.tools.YoutubeHelper import yt_helper
 
 class QueueCog(commands.Cog):
     
@@ -89,27 +90,6 @@ class QueueCog(commands.Cog):
             ctx.voice_client.play(song.audio, after=lambda e: ctx.bot.loop.create_task(self._play_next_song(ctx=ctx)))
             await embed.send_embed(title="Song playing", description=song.title, context=ctx)
 
-    async def _search_youtube(self, query: str, message: discord.Message | None = None) -> str:
-        url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
-        rep = requests.get(url=url)
-
-        if rep.status_code != 200:
-            if message:
-                await message.edit(embed=discord.Embed(title="An unexpected error occured.", color=discord.Color.red()))
-            return
-
-        soup = BeautifulSoup(rep.text, features="html.parser")
-        video_id = re.findall(r'"videoId":"(.*?)"', str(soup.find_all("script")))
-
-        return video_id[0]
-
-    async def _identify_link(self, query: str) -> str:
-        if "https://" in query and "youtube" in query:
-            return "yt_link"
-        elif "https://" in query:
-            return "unknown_link"
-        else:
-            return "no_link"
         
     def _seconds_to_time(self, seconds: int) -> str:
         days, seconds = divmod(seconds, 86400)  # 86400 seconds in a day
@@ -169,7 +149,7 @@ class QueueCog(commands.Cog):
             await embed.send_error(title="The currently playing song cannot be removed.", context=ctx)
             return
         
-        queue.remove(index - 1)
+        queue.remove(index - 1) 
 
         if index < queue.get_current_index():
             queue.set_current_index(queue.get_current_index() - 1)
@@ -197,7 +177,7 @@ class QueueCog(commands.Cog):
 
     @commands.hybrid_command(name="add", description="Adds a song to the queue via a link or YouTube url.")
     async def add(self, ctx: commands.Context, prompt: str) -> None:
-        is_link = await self._identify_link(query=prompt)
+        is_link = await yt_helper.identify_link(query=prompt)
 
         message = None
         yt_url = ""
@@ -206,11 +186,11 @@ class QueueCog(commands.Cog):
             message = await embed.send_embed("Adding song to queue.", context=ctx, color=discord.Color.yellow())
             yt_url = prompt
         elif is_link == "unknown_link":
-            await embed.send_error(title="Unsupported link.")
+            await embed.send_error(title="Unsupported link.", context=ctx)
             return
         else:
             message = await embed.send_embed(title=f"Searching for {prompt}.", color=discord.Color.yellow(), context=ctx)
-            video_id = await self._search_youtube(message=message, query=prompt)
+            video_id = await yt_helper.search_youtube(message=message, query=prompt)
             await message.edit(embed=discord.Embed(title="Adding song to queue.", color=discord.Color.yellow()))
             yt_url = f"https://www.youtube.com/watch?v={video_id}"
 
@@ -239,7 +219,6 @@ class QueueCog(commands.Cog):
         queue.unpause()
         queue.unloop()
         queue.set_current(None)
-        queue.set_current_index(0)
         ctx.voice_client.stop()
         await ctx.voice_client.disconnect()
         await embed.send_embed(title="Stopped music.", context=ctx)
@@ -247,7 +226,7 @@ class QueueCog(commands.Cog):
     @commands.hybrid_command(name="pause", description="Pauses the music.")
     async def pause(self, ctx: commands.Context) -> None:
         if not ctx.voice_client or (not ctx.voice_client.is_playing() and not queue.is_paused()):
-            await embed.send_embed(title="The bot is not playing.", context=ctx)
+            await embed.send_error(title="The bot is not playing.", context=ctx)
             return
 
         if not queue.is_paused():

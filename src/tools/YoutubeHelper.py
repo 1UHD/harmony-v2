@@ -1,0 +1,45 @@
+import discord
+import requests
+import re
+from bs4 import BeautifulSoup
+
+from src.tools.logging import logger
+
+class YoutubeHelper:
+
+    def __init__(self) -> None: ...
+
+    async def search_youtube(self, query: str, message: discord.Message | None = None) -> str:
+        url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
+        rep = requests.get(url=url)
+
+        if rep.status_code != 200:
+            if message:
+                await message.edit(embed=discord.Embed(title="An unexpected error occured.", color=discord.Color.red()))
+            return
+
+        soup = BeautifulSoup(rep.text, features="html.parser")
+        video_id = re.findall(r'"videoId":"(.*?)"', str(soup.find_all("script")))
+
+        return video_id[0]
+
+    def identify_link(self, query: str) -> str:
+        if "https://" in query and "youtube" in query:
+            return "yt_link"
+        elif "https://" in query:
+            return "unknown_link"
+        else:
+            return "no_link"
+        
+
+    async def get_yt_title(self, url: str) -> str:
+        rep = requests.get(url)
+
+        soup = BeautifulSoup(rep.text, features="html.parser")
+        title = soup.find_all("title")[0]
+
+        return str(title).replace("<title>", "").replace("</title>", "")
+
+
+
+yt_helper = YoutubeHelper()

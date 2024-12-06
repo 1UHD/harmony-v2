@@ -3,6 +3,7 @@ import json
 
 from src.tools.Song import Song
 from src.tools.logging import logger
+from src.tools.Queue import queue
 
 class Playlist:
 
@@ -10,10 +11,16 @@ class Playlist:
         self.name = name
         self.songs = []
         self.length = None
-        self.song_amount = 0
+        self.song_amount = len(self.songs)
+
+    def get_song_amount(self) -> int:
+        return len(self.songs)
 
     def add_song(self, song: str) -> None:
         self.songs.append(song)
+
+    def remove_song(self, index: str) -> None:
+        self.songs.pop(index)
 
 class PlaylistUtility:
 
@@ -50,7 +57,7 @@ class PlaylistUtility:
         
         return playlist_files
         
-    def create_playlist_json(self, name: str, urls: list[str]) -> None:
+    def _create_playlist_json(self, name: str, urls: list[str]) -> None:
         playlist_data = {
             "name": name,
             "songs": urls
@@ -59,6 +66,37 @@ class PlaylistUtility:
         file_path = os.path.join(self.path, f"{name}.json")
         with open(file_path, "w") as f:
             json.dump(playlist_data, f, indent=4)
+
+        logger.info(f"Playlist json for {name} has been created.")
+
+    def check_playlist_name_availability(self, name: str) -> bool:
+        for playlist in self.playlists:
+            if name.lower() == playlist.name.lower():
+                return False
+            
+        return True
+    
+    def check_playlist_existence(self, name: str) -> bool:
+        for playlist in self.playlists:
+            if name.lower() == playlist.name.lower():
+                return True
+            
+        return False
+    
+    def find_playlist_object_by_name(self, name: str) -> Playlist:
+        for playlist in self.playlists:
+            if name.lower() == playlist.name.lower():
+                return playlist
+
+    def queue_playlist(self, playlist: Playlist) -> None:
+        for url in playlist.songs:
+            song = Song(url=url)
+            queue.add(song=song)
+
+    def create_playlist(self, name: str) -> None:
+        playlist = Playlist(name=name)
+        self.playlists.append(playlist)
+        self._create_playlist_json(name=name, urls=[])
 
         logger.info(f"Playlist {name} has been created.")
 
@@ -77,7 +115,9 @@ class PlaylistUtility:
             playlist.add_song(song)
         logger.info(f"Loaded playlist '{playlist_data['name']}' with {len(playlist_data['songs'])} songs.")
 
-    def add_song_to_playlist(self, name: str, url: str) -> None:
+    def add_song_to_playlist(self, playlist: str, url: str) -> None:
+        name = self.find_playlist_object_by_name(name=playlist).name
+
         file_path = os.path.join(self.path, f"{name}.json")
         if not os.path.exists(file_path):
             logger.error(f"Playlist '{name}' does not exist.")
@@ -92,7 +132,9 @@ class PlaylistUtility:
             json.dump(playlist_data, f, indent=4)
         logger.info(f"Added song to playlist '{name}': {url}")
 
-    def remove_song_from_playlist(self, name: str, index: int) -> None:
+    def remove_song_from_playlist(self, playlist: str, index: int) -> None:
+        name = self.find_playlist_object_by_name(name=playlist).name
+
         file_path = os.path.join(self.path, f"{name}.json")
         if not os.path.exists(file_path):
             logger.error(f"Playlist '{name}' does not exist.")
@@ -109,10 +151,14 @@ class PlaylistUtility:
         else:
             logger.error(f"Invalid index {index} for playlist '{name}'.")
 
-    def remove_playlist_json(self, name: str) -> None:
+    def remove_playlist_json(self, playlist: str) -> None:
+        name = self.find_playlist_object_by_name(name=playlist).name
+
         file_path = os.path.join(self.path, f"{name}.json")
         if os.path.exists(file_path):
             os.remove(file_path)
             logger.info(f"Playlist '{name}' removed.")
         else:
             logger.error(f"Playlist '{name}' does not exist.")
+
+PlaylistManager = PlaylistUtility()
