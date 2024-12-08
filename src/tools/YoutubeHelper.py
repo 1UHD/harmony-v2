@@ -43,4 +43,11 @@ class YoutubeHelper:
         rep = requests.get(url)
 
         soup = BeautifulSoup(rep.text, features="html.parser")
-        title = soup
+        title = soup.find_all("title")[0]
+
+        logger.debug(f"finished fetching title using a very bad form of abusing the yt api at {datetime.datetime()}")
+        return str(title).replace("<title>", "").replace("</title>", "")
+
+
+
+yt_helper = YoutubeHelper()

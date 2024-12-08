@@ -219,7 +219,7 @@ class QueueCog(commands.Cog):
     @commands.hybrid_command(name="stop", aliases=["stfu"], description="Stops the music.")
     async def stop(self, ctx: commands.Context) -> None:
         if not ctx.voice_client:
-            embed.send_error(title="The bot is not playing.", context=ctx)
+            await embed.send_error(title="The bot is not playing.", context=ctx)
             return
         
         queue.unpause()
@@ -296,6 +296,10 @@ class QueueCog(commands.Cog):
 
         queue.set_current_index(song - 1)
         await embed.send_embed(title=f"Jumped to {song}. It will play after this song.", context=ctx)
+
+    @commands.command(name="test")
+    async def test(self, ctx: commands.Context) -> None:
+        await ctx.send("wenn du das hier siehst könnte es gut sein dass der ganze bot genuked wurde dank eines api updates :skull:")
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(QueueCog(bot=bot))
