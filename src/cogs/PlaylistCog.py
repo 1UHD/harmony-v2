@@ -57,7 +57,7 @@ class PlaylistCog(commands.Cog):
             return
         
         playlist_object = PlaylistManager.find_playlist_object_by_name(name=playlist)
-        is_link = yt_helper.identify_link(query=prompt)
+        is_link = await yt_helper.identify_link(query=prompt)
 
         message = None
         yt_url = ""
@@ -129,6 +129,7 @@ class PlaylistCog(commands.Cog):
         
         playlist_object = PlaylistManager.find_playlist_object_by_name(name=playlist)
         #TODO: make this look good.
+        await embed.send_embed(title=playlist_object.name, description=await playlist_object.get_formatted(), footer=f"{playlist_object.get_song_amount()} song{'s' if playlist_object.get_song_amount() != 1 else ''}", context=ctx)
 
 
 async def setup(bot: commands.Bot) -> None:

@@ -177,20 +177,26 @@ class QueueCog(commands.Cog):
 
     @commands.hybrid_command(name="add", description="Adds a song to the queue via a link or YouTube url.")
     async def add(self, ctx: commands.Context, prompt: str) -> None:
+        logger.debug("1")
         is_link = await yt_helper.identify_link(query=prompt)
 
+        logger.debug("2")
         message = None
         yt_url = ""
 
         if is_link == "yt_link":
+            logger.debug("yt_link")
             message = await embed.send_embed("Adding song to queue.", context=ctx, color=discord.Color.yellow())
             yt_url = prompt
         elif is_link == "unknown_link":
             await embed.send_error(title="Unsupported link.", context=ctx)
             return
         else:
+            logger.debug("prompt")
             message = await embed.send_embed(title=f"Searching for {prompt}.", color=discord.Color.yellow(), context=ctx)
+            logger.debug("3")
             video_id = await yt_helper.search_youtube(message=message, query=prompt)
+            logger.debug("4")
             await message.edit(embed=discord.Embed(title="Adding song to queue.", color=discord.Color.yellow()))
             yt_url = f"https://www.youtube.com/watch?v={video_id}"
 

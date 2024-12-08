@@ -1,5 +1,5 @@
-import discord
 
+import discord
 import yt_dlp
 from src.settings import bitrate
 from src.tools.logging import logger

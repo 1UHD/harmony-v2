@@ -1,9 +1,11 @@
 import os
 import json
+import asyncio
 
 from src.tools.Song import Song
 from src.tools.logging import logger
 from src.tools.Queue import queue
+from src.tools.YoutubeHelper import yt_helper
 
 class Playlist:
 
@@ -21,6 +23,16 @@ class Playlist:
 
     def remove_song(self, index: str) -> None:
         self.songs.pop(index)
+
+    async def get_formatted(self) -> str:
+        tasks = [yt_helper.get_yt_title(song) for song in self.songs]
+
+        logger.debug("starting asyncio shenanigans")
+        titles = await asyncio.gather(*tasks)
+
+        result = [f"{i + 1}. {title}" for i, title in enumerate(titles)]
+        
+        return "\n".join(result)
 
 class PlaylistUtility:
 
