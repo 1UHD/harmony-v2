@@ -1,7 +1,8 @@
 import discord
 from discord.ext import commands
-from src.settings import KEY, LOGO, VERSION, BETA, COGS_DIR, debug_mode, testing_mode
+from src.settings import KEY, LOGO, VERSION, BETA, COGS_DIR, debug_mode, no_update
 from src.tools.logging import logger, Colors
+from src.tools.PackageManager import packageManager
 
 class Main:
 
@@ -40,6 +41,9 @@ class Main:
         
 
     def run(self) -> None:
+        if not no_update:
+            packageManager.update_packages()
+
         logger.info("Launching Harmony", True)
         self.bot.run(token=KEY, log_handler=None)
 

@@ -18,6 +18,7 @@ LOGO = """
 """
 debug_mode = False
 testing_mode = False
+no_update = False
 
 bitrate = 128
 

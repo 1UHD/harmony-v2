@@ -11,12 +11,14 @@ def main() -> None:
     )
     parser.add_argument("--debug", action="store_true", help="Enable debug mode.")
     parser.add_argument("--test", action="store_true", help="Enable testing mode.")
+    parser.add_argument("--no-update", action="store_true", help="Disable the auto updater.")
 
     args = parser.parse_args()
 
     settings.mp3_path = args.mp3
     settings.debug_mode = args.debug
     settings.testing_mode = args.test
+    settings.no_update = args.no_update
 
     from src.tools.logging import logger
     from src.tools.MP3Helper import mp3loader
