@@ -81,11 +81,13 @@ python launch.py [-h] [--mp3 MP3] [--debug] [--test] [--no-update]
 
 **Options:**
 
--h / --help         Show help message.
---mp3 MP3           Specify the path to an MP3 directory.
---debug             Enable debug mode.
---test              Runs tests.
---no-update         Skip updating dependencies before launch.
+```
+-h / --help     Show help message.
+--mp3 MP3       Specify the path to an MP3 directory.
+--debug         Enable debug mode.
+--test          Runs tests.
+--no-update     Skip updating dependencies before launch.
+```
 
 ### Running with MP3
 
