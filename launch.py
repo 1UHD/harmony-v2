@@ -1,7 +1,12 @@
 import argparse
-import src.settings as settings
 
 def main() -> None:
+    from src.tools.setup import setup
+    if not setup._check_if_file_exists():
+        setup._setup()
+    
+    import src.settings as settings
+
     parser = argparse.ArgumentParser()
     parser.add_argument(
         '--mp3', 

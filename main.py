@@ -3,6 +3,7 @@ from discord.ext import commands
 from src.settings import KEY, LOGO, VERSION, BETA, COGS_DIR, debug_mode, no_update
 from src.tools.logging import logger, Colors
 from src.tools.PackageManager import packageManager
+from src.tools.setup import setup
 
 class Main:
 
@@ -45,6 +46,10 @@ class Main:
             packageManager.update_packages()
 
         logger.info("Launching Harmony", True)
-        self.bot.run(token=KEY, log_handler=None)
+        try:
+            self.bot.run(token=KEY, log_handler=None)
+        except discord.errors.LoginFailure:
+            logger.error("Invalid bot token! Please rerun the bot.", True)
+            setup._delete_token_file()
 
 harmony = Main()
