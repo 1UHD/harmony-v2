@@ -87,6 +87,7 @@ python launch.py [-h] [--mp3 MP3] [--debug] [--test] [--no-update]
 --debug         Enable debug mode.
 --test          Runs tests.
 --no-update     Skip updating dependencies before launch.
+--update        Update the bot.
 ```
 
 ### Running with MP3
