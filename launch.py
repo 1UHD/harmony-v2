@@ -17,6 +17,7 @@ def main() -> None:
     parser.add_argument("--debug", action="store_true", help="Enable debug mode.")
     parser.add_argument("--test", action="store_true", help="Enable testing mode.")
     parser.add_argument("--no-update", action="store_true", help="Disable the auto updater.")
+    parser.add_argument("--update", action="store_true", help="Update the bot.")
 
     args = parser.parse_args()
 
@@ -37,6 +38,14 @@ def main() -> None:
 
     if args.test:
         logger.info(f"Launching in test mode.", True)
+
+    if args.update:
+        from src.tools.PackageManager import projectUpdater
+        projectUpdater.update_project()
+        return
+
+    from src.tools.PackageManager import projectUpdater
+    projectUpdater.check_for_update()
 
     if not settings.testing_mode:
         from main import harmony

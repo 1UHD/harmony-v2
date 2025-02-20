@@ -7,7 +7,7 @@ HOME_DIR = pathlib.Path(__file__).parent
 COGS_DIR = HOME_DIR / "cogs"
 
 VERSION = "2.0"
-BETA = True
+BETA = False
 LOGO = """
  _   _                                        
 | | | | __ _ _ __ _ __ ___   ___  _ __  _   _ 

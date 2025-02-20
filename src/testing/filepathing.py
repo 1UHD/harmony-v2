@@ -4,8 +4,7 @@ from src.tools.Queue import queue
 from src.tools.Playlist import PlaylistManager
 from src.tools.YoutubeHelper import yt_helper
 from src.tools.setup import setup
-from src.tools.PackageManager import packageManager
+from src.tools.PackageManager import packageManager, projectUpdater
 
 def main() -> None:
     logger.debug("Running test filepathing")
-    setup._setup()
