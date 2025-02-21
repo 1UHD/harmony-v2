@@ -1,4 +1,5 @@
 import os
+import importlib
 
 class Colors:
     PURPLE = '\033[95m'
@@ -47,5 +48,13 @@ is stored locally and will never be shared with third parties.
         print(welcome_message)
         bot_token = input(f"{Colors.CYAN}Enter your bot token:{Colors.END} ")
         self._create_token_file(bot_token)
+
+        packages = [
+            "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp"
+        ]
+
+        for package in packages:
+            if not importlib.util.find_spec(package):
+                os.system(f"{sys.executable} -m pip install {package}")
 
 setup = Setup()

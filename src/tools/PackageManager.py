@@ -13,12 +13,7 @@ class PackageManager:
         self.packages = [
             "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp"
         ]
-
-    def install_packages(self) -> None:
-        for package in self.packages:
-            if not importlib.util.find_spec(package):
-                os.system(f"{sys.executable} -m pip install {package}")
-
+        
     #this takes 2s which can be decreased considerably by using threads or asyncio but I couldnt give less of a fuck
     def _get_newest_package_version(self, package: str) -> str:
         result = subprocess.run([f'{sys.executable}', '-m', 'pip', 'index', 'versions', f"{package}"], capture_output=True, text=True, check=True)
@@ -86,14 +81,14 @@ class ProjectUpdater:
         if self.latest_version is None:
             return
 
-        if self._get_current_version() > self.latest_version:
+        if self._get_current_version() < self.latest_version:
             logger.info(f"{Colors.CYAN}A new release of Harmony is available:{Colors.END} {Colors.BOLD}{self.latest_version}{Colors.END}! Run {Colors.BOLD}python launch.py --update{Colors.END} to update!", True)
 
     def update_project(self) -> None:
         if self.latest_version is None:
             return
         
-        if self._get_current_version() > self.latest_version:
+        if self._get_current_version() < self.latest_version:
             logger.info("Updating Harmony...", True)
             self._download_latest_release()
             logger.info("Update complete! You can now restart the bot.", True)

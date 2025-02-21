@@ -8,3 +8,6 @@ from src.tools.PackageManager import packageManager, projectUpdater
 
 def main() -> None:
     logger.debug("Running test filepathing")
+    logger.debug(projectUpdater._get_latest_version())
+    logger.debug(projectUpdater._get_current_version())
+    logger.debug(projectUpdater._get_latest_version() > projectUpdater._get_current_version())
