@@ -19,7 +19,7 @@ class Main:
         return commands.Bot(command_prefix=prefix, activity=activity, intents=intents, help_command=None, case_insensitive=False)
 
     def _start_message(self) -> None:
-        logger.info(f"{Colors.PURPLE}{LOGO}{Colors.END}Version: {VERSION} {f'({Colors.RED}BETA{Colors.END})' if BETA else None}\n\nBot: {self.bot.user.name} (ID: {self.bot.user.id})\n", True)
+        logger.info(f"{Colors.PURPLE}{LOGO}{Colors.END}Version: {VERSION} {f'({Colors.RED}BETA{Colors.END})' if BETA else ""}\n\nBot: {self.bot.user.name} (ID: {self.bot.user.id})\n", True)
         if debug_mode:
             logger.warning("DEBUG MODE is enabled!")
 
