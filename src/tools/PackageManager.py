@@ -69,12 +69,28 @@ class ProjectUpdater:
 
         shutil.unpack_archive(zip_path, "latest_release")
 
-        extracted_folder = os.path.join(self.project_path, f"{self.repo}-{self.latest_version}")
-        for item in os.listdir(extracted_folder):
-            shutil.move(os.path.join(extracted_folder, item), self.project_path)
+        extracted_folder = os.path.join(self.project_path, "latest_release")
+        from src.bot_token import BOT_TOKEN
+        with open(os.path.join(extracted_folder, f"harmony-v2-{self.latest_version}/src/bot_token.py"), "w") as f:
+            f.write(f"BOT_TOKEN = '{BOT_TOKEN}'")
 
-        os.remove(zip_path)
+        for file in os.listdir(self.project_path):
+            file_path = os.path.join(self.project_path, file)
+
+            if file != "latest_release":
+                if os.path.isfile(file_path):
+                    os.remove(file_path)
+                else:
+                    if not os.listdir(file_path):
+                        os.rmdir(file_path)
+                    else:    
+                        shutil.rmtree(file_path)
+
+        for file in os.listdir(os.path.join(extracted_folder, f"harmony-v2-{self.latest_version}")):
+            shutil.move(os.path.join(extracted_folder, f"harmony-v2-{self.latest_version}/{file}"), self.project_path)
+
         shutil.rmtree(extracted_folder)
+        os.remove(zip_path)
 
     def check_for_update(self) -> None:
         if self.latest_version is None:
