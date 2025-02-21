@@ -6,7 +6,7 @@ KEY = BOT_TOKEN
 HOME_DIR = pathlib.Path(__file__).parent
 COGS_DIR = HOME_DIR / "cogs"
 
-VERSION = "2.0.0"
+VERSION = "2.0.1"
 BETA = False
 LOGO = """
  _   _                                        
