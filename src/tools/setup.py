@@ -1,6 +1,6 @@
 import os
 import sys
-import importlib
+import importlib.util
 
 class Colors:
     PURPLE = '\033[95m'
