@@ -1,6 +1,5 @@
 <div align=center>
 <img src="https://raw.githubusercontent.com/1UHD/harmony-v2/refs/heads/main/assets/github_banner.png">
-<h1>Harmony v2</h1>
 <h3>a self-hosted, feature-rich discord music bot using yt-dlp</h3>
 </div>
 
