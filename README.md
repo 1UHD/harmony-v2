@@ -1,5 +1,5 @@
 <div align=center>
-<img src="https://cdn.discordapp.com/avatars/1251868217589108829/c8ba1b17bc48d26e468b51b71994bbad.webp">
+<img src="https://raw.githubusercontent.com/1UHD/harmony-v2/refs/heads/main/assets/github_banner.png">
 <h1>Harmony v2</h1>
 <h3>a self-hosted, feature-rich discord music bot using yt-dlp</h3>
 </div>
