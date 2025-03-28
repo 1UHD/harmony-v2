@@ -51,7 +51,7 @@ is stored locally and will never be shared with third parties.
         self._create_token_file(bot_token)
 
         packages = [
-            "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp"
+            "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp", "PyNaCl"
         ]
 
         for package in packages:

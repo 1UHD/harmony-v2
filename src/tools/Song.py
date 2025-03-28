@@ -27,7 +27,9 @@ class Song:
         }
 
         with yt_dlp.YoutubeDL(ytdlp) as ydl:
+            logger.debug("boutta extract some shi")
             info_dict = ydl.extract_info(self.url, download=False)
+            logger.debug("extracted some shi")
 
             self.thumbnail = self._get_thumbnail()
             self.title = info_dict["title"]

@@ -182,6 +182,7 @@ class QueueCog(commands.Cog):
 
         logger.debug("2")
         message = None
+        await ctx.interaction.response.defer()
         yt_url = ""
 
         if is_link == "yt_link":
@@ -197,16 +198,25 @@ class QueueCog(commands.Cog):
             logger.debug("3")
             video_id = await yt_helper.search_youtube(message=message, query=prompt)
             logger.debug("4")
-            await message.edit(embed=discord.Embed(title="Adding song to queue.", color=discord.Color.yellow()))
+            try:
+                await message.edit(embed=discord.Embed(title="Adding song to queue.", color=discord.Color.yellow()))
+            except Exception as e:
+                logger.error(e)
             yt_url = f"https://www.youtube.com/watch?v={video_id}"
 
         song = Song(url=yt_url)
+        logger.debug("song shitted")
         queue.add(song=song)
-
-        await message.edit(embed=discord.Embed(
-            title=f"{song.title} has been added to the queue.",
-            color=discord.Color.blurple()
-        ))
+        logger.debug("vallah")
+        logger.debug(song.title)
+        try:
+            await message.edit(embed=discord.Embed(
+                title=f"{song.title} has been added to the queue.",
+                color=discord.Color.blurple()
+            ))
+        except Exception as e:
+            logger.error(e)
+        logger.debug("what the actual fuck")
 
     @commands.hybrid_command(name="play", description="Plays the queue.")
     async def play(self, ctx: commands.Context) -> None:

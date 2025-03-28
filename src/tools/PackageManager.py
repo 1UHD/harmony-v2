@@ -10,7 +10,7 @@ class PackageManager:
 
     def __init__(self) -> None:
         self.packages = [
-            "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp"
+            "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp", "PyNaCl"
         ]
 
     #this takes 2s which can be decreased considerably by using threads or asyncio but I couldnt give less of a fuck
@@ -21,9 +21,18 @@ class PackageManager:
     def _check_if_uptodate(self, package: str) -> bool:
         return importlib.metadata.version(package) == self._get_newest_package_version(package)
     
+    def _check_for_dependency(self, package: str) -> None:
+        try:
+            logger.debug(importlib.metadata.version(package))
+        except:
+            os.system(f"{sys.executable} -m pip install {package}")
+
+
     def update_packages(self) -> None:
         logger.info("Running auto-updater", True)
         for package in self.packages:
+            self._check_for_dependency(package)
+
             if not self._check_if_uptodate(package):
                 logger.info(f"Updating {package}", True)
                 os.system(f"{sys.executable} -m pip install --upgrade {package}")
