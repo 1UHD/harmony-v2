@@ -65,3 +65,6 @@ class MP3Cog(commands.Cog):
         
         else:
             await embed.send_embed(title="Added all available songs", context=ctx)
+
+async def setup(bot: commands.Bot) -> None:
+    await bot.add_cog(MP3Cog(bot=bot))
