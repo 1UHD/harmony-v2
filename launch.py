@@ -27,11 +27,9 @@ def main() -> None:
     settings.no_update = args.no_update
 
     from src.tools.logging import logger
-    from src.tools.MP3Helper import mp3loader
     
     if args.mp3:
-        logger.info(f"Adding MP3 files in {settings.mp3_path} to the queue!")
-        mp3loader.add_to_queue()
+        logger.info(f"Launching with file access for {settings.mp3_path}.", True)
 
     if args.debug:
         logger.info(f"Launching in debug mode.", True)
