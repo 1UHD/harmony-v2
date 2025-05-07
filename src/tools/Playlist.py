@@ -1,5 +1,6 @@
 import os
 import json
+import time
 import asyncio
 
 from src.tools.Song import Song
@@ -27,11 +28,13 @@ class Playlist:
     async def get_formatted(self) -> str:
         tasks = [yt_helper.get_yt_title(song) for song in self.songs]
 
-        logger.debug("starting asyncio shenanigans")
+        start_time = time.time()
+        logger.debug("starting weird asyncio shenanigans that I do not really understand but a random guy on stackoverflow recommended")
         titles = await asyncio.gather(*tasks)
 
         result = [f"{i + 1}. {title}" for i, title in enumerate(titles)]
         
+        logger.debug(f"done (took {time.time() - start_time}s)")
         return "\n".join(result)
 
 class PlaylistUtility:

@@ -60,6 +60,7 @@ class PlaylistCog(commands.Cog):
         is_link = await yt_helper.identify_link(query=prompt)
 
         message = None
+        await ctx.interaction.response.defer()
         yt_url = ""
 
         if is_link == "yt_link":
@@ -74,9 +75,16 @@ class PlaylistCog(commands.Cog):
             await message.edit(embed=discord.Embed(title="Adding song to playlist.", color=discord.Color.yellow()))
             yt_url = f"https://www.youtube.com/watch?v={video_id}"
 
+        logger.debug("we found the url, baby!")
+
         playlist_object.add_song(yt_url)
         PlaylistManager.add_song_to_playlist(playlist=playlist, url=yt_url)
-        await message.edit(embed=discord.Embed(title=f"Song has been added to the playlist.", color=discord.Color.blurple()))
+        try:
+            yt_title = await yt_helper.get_yt_title(yt_url)
+        except Exception as e:
+            logger.debug(e)
+            yt_title = ""
+        await message.edit(embed=discord.Embed(title=f"{yt_title} has been added to the playlist.", color=discord.Color.blurple()))
         
 
     @playlist.command(name="queue", description="Adds a playlist to the queue.")
@@ -90,24 +98,40 @@ class PlaylistCog(commands.Cog):
             await embed.send_error(title=f"{playlist_object.name} is empty.", context=ctx)
             return
         
+        await ctx.interaction.response.defer()
+        logger.debug("interaction was saved")
+        
         message = await embed.send_embed(title=f"Adding {playlist_object.get_song_amount()} song{'s' if playlist_object.get_song_amount() != 1 else ''}", context=ctx, color=discord.Color.yellow())
+        logger.debug("trying to queue songs in playlist")
         PlaylistManager.queue_playlist(playlist=playlist_object)
+        logger.debug("queued playlist")
         await message.edit(embed=discord.Embed(title=f"{playlist} has been added to the queue.", color=discord.Color.blurple()))
 
     @playlist.command(name="remove", description="Removes a song from the playlist.")
     async def playlist_remove(self, ctx: commands.Context, playlist: str, index: int) -> None:
+        index = index - 1
+
         if not PlaylistManager.check_playlist_existence(name=playlist):
             await embed.send_error(title=f"Playlist {playlist} doesn't exist.", context=ctx)
             return
         
         playlist_object = PlaylistManager.find_playlist_object_by_name(name=playlist)
-        if playlist_object.song_amount < 1:
+        if playlist_object.get_song_amount() < 1:
             await embed.send_error(title=f"{playlist} is empty. You can't remove a song from an empty playlist.", context=ctx)
             return
         
+        if playlist_object.get_song_amount() < index:
+            await embed.send_error(title=f"Song {index} does not exist.", context=ctx)
+            return
+        
+        logger.debug(playlist_object.songs[index])
+        song_title = await yt_helper.get_yt_title(playlist_object.songs[index])
+        logger.debug("it didnt fail holy moly")
+
         playlist_object.remove_song(index)
         PlaylistManager.remove_song_from_playlist(playlist=playlist, index=index)
-        await embed.send_embed(title=f"{playlist_object.songs[index]} has been removed.", context=ctx)
+
+        await embed.send_embed(title=f"{song_title} has been removed.", context=ctx)
 
     @playlist.command(name="delete", description="Deletes a playlist.")
     async def playlist_delete(self, ctx: commands.Context, playlist: str) -> None:
@@ -128,7 +152,8 @@ class PlaylistCog(commands.Cog):
             return
         
         playlist_object = PlaylistManager.find_playlist_object_by_name(name=playlist)
-        #TODO: make this look good.
+        #TODO: make this take less than 2000 years to process
+        await ctx.interaction.response.defer()
         await embed.send_embed(title=playlist_object.name, description=await playlist_object.get_formatted(), footer=f"{playlist_object.get_song_amount()} song{'s' if playlist_object.get_song_amount() != 1 else ''}", context=ctx)
 
 
