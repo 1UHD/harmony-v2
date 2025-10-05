@@ -47,7 +47,11 @@ class Main:
 
         logger.info("Launching Harmony", True)
         try:
-            self.bot.run(token=KEY, log_handler=None)
+            if debug_mode:
+                self.bot.run(token=KEY)
+            else:
+                self.bot.run(token=KEY, log_handler=None)
+                
         except discord.errors.LoginFailure:
             logger.error("Invalid bot token! Please rerun the bot.", True)
             setup._delete_token_file()

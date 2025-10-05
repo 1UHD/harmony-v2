@@ -3,6 +3,8 @@ from discord.ext import commands
 import platform
 import requests
 from bs4 import BeautifulSoup
+import asyncio
+import shutil
 import re
 import os
 
@@ -17,14 +19,27 @@ class QueueCog(commands.Cog):
     
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
-        self.opus_loaded = self._load_opus()
+        self.opus_loaded = None
 
-    def _load_opus(self) -> bool:
+    async def cog_load(self):
+        self.opus_loaded = await self._load_opus()
+        await self._check_for_ffmpeg()
+
+    async def _check_for_ffmpeg(self) -> None:
+        ffmpeg_available = shutil.which("ffmpeg")
+
+        if not ffmpeg_available:
+            logger.error("FFmpeg is required for music streaming. (https://www.ffmpeg.org/download.html)", True)
+            await self.bot.close()
+        else:
+            logger.debug("ffmpeg was found")
+
+    async def _load_opus(self) -> bool:
         os_name = platform.system().lower()
 
         try:
             if os_name == "darwin":  # macOS
-                opus_path = "/opt/homebrew/lib/libopus.dylib" if os.uname().machine == "arm64" else "/usr/local/lib/libopus.dylib"
+                opus_path = "/opt/homebrew/lib/libopus.dylib" if os.path.isfile("/opt/homebrew/lib/libopus.dylib") else "/usr/local/lib/libopus.dylib"
                 discord.opus.load_opus(opus_path)
                 logger.info("OPUS loaded on macOS.")
                 return True
@@ -43,12 +58,12 @@ class QueueCog(commands.Cog):
 
             else:
                 logger.error("Unknown operating system. Rerun Harmony v2 using the flag --custom-opus <path>.", True)
-                self.bot.close()
+                await self.bot.close()
                 return False
 
         except:
             logger.error("OPUS not found. Please install libopus or provide a custom path using the flag --custom-opus <path>.", True)
-            self.bot.close()
+            await self.bot.close()
             return False
 
 
@@ -110,6 +125,8 @@ class QueueCog(commands.Cog):
 
     @queue.command(name="play", description="Plays the queue.")
     async def queue_play(self, ctx: commands.Context) -> None:
+        await ctx.interaction.response.defer()
+
         if not self.opus_loaded:
             await self.bot.close()
 

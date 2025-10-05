@@ -26,7 +26,7 @@ class MP3Loader:
         self.path = settings.mp3_path
 
     def _correct_path(self, path: str) -> str:
-        if path.split("")[-1] is not "/":
+        if path.split("")[-1] != "/":
             return path + "/"
         else:
             return path
@@ -34,7 +34,7 @@ class MP3Loader:
     def _correct_file_path(self, path: str) -> str:
         path = path.replace("..", "")
 
-        if path.split("")[0] is not "/":
+        if path.split("")[0] != "/":
             return "/" + path
         else:
             return path

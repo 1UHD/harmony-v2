@@ -10,7 +10,7 @@ class PackageManager:
 
     def __init__(self) -> None:
         self.packages = [
-            "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp", "PyNaCl"
+            "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp", "PyNaCl", "asyncio"
         ]
 
     #this takes 2s which can be decreased considerably by using threads or asyncio but I couldnt give less of a fuck
