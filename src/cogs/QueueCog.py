@@ -303,7 +303,11 @@ class QueueCog(commands.Cog):
             return
 
         if times < 1:
-            await embed.send_error(title="You need to skip at least 1 song.")
+            await embed.send_error(title="You need to skip at least 1 song.", context=ctx)
+            return
+
+        if queue.get_length() == 0:
+            await embed.send_error(title="Queue is empty.", context=ctx)
             return
 
         if times > queue.get_length():
