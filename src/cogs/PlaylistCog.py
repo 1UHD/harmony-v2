@@ -156,6 +156,16 @@ class PlaylistCog(commands.Cog):
         await ctx.interaction.response.defer()
         await embed.send_embed(title=playlist_object.name, description=await playlist_object.get_formatted(), footer=f"{playlist_object.get_song_amount()} song{'s' if playlist_object.get_song_amount() != 1 else ''}", context=ctx)
 
+    @playlist.command(name="list", description="Lists all playlists.")
+    async def playlist_list(self, ctx: commands.Context) -> None:
+        playlists = PlaylistManager.playlists
+
+        if len(playlists) == 0:
+            await embed.send_error(title="No playlists available.", context=ctx)
+            return
+
+        await embed.send_embed(title="Available playlists:", description="".join(f"{p.name} - {len(p.songs)}\n" for p in playlists), context=ctx)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(PlaylistCog(bot=bot))

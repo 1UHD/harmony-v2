@@ -26,12 +26,10 @@ class Playlist:
         self.songs.pop(index)
 
     async def get_formatted(self) -> str:
-        tasks = [yt_helper.get_yt_title(song) for song in self.songs]
-
         start_time = time.time()
-        logger.debug("starting weird asyncio shenanigans that I do not really understand but a random guy on stackoverflow recommended")
-        titles = await asyncio.gather(*tasks)
-
+        titles = await asyncio.gather(
+            *(yt_helper.get_yt_title(song) for song in self.songs)
+        )
         result = [f"{i + 1}. {title}" for i, title in enumerate(titles)]
         
         logger.debug(f"done (took {time.time() - start_time}s)")
