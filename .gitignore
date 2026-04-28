@@ -1,5 +1,6 @@
 src/bot_token.py
 src/testing/yt_test_rep.txt
+src/testing/info_dict.txt
 playlists/*
 
 __pycache__

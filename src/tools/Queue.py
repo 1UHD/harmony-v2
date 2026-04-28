@@ -1,4 +1,6 @@
+from src.tools.logging import logger
 import src.tools.Song as Song
+import asyncio
 
 class Queue:
 
@@ -6,9 +8,31 @@ class Queue:
         self.queue = []
         self.current = None
         self.current_index = 0
+        self.preloaded_songs = 2
 
         self.paused = False
         self.looped = False
+    
+    def load_current_song(self) -> None:
+        if not self.queue[self.current_index].audio:
+            logger.debug(f"getting audio for current index ({self.current_index})")
+            self.queue[self.current_index].get_audio()
+
+    def load_song(self, index: int) -> None:
+        if index >= len(self.queue):
+            logger.warning(f"list index out of range. queue len: {len(self.queue)}, requested index: {index}")
+            return
+
+        if not self.queue[index].audio:
+            logger.debug(f"getting audio for current index ({index})")
+            self.queue[index].get_audio()
+
+    async def load_songs(self) -> None:
+        for i in range(self.preloaded_songs):
+            if (self.current_index + i + 1) < len(self.queue):
+                if not self.queue[self.current_index+i+1].audio:
+                    logger.debug(f"getting audio for queue index {self.current_index+i+1}")
+                    asyncio.create_task(asyncio.to_thread(self.queue[self.current_index+i+1].get_audio))
 
     def add(self, song: Song.Song) -> None:
         self.queue.append(song)

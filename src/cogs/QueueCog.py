@@ -96,14 +96,21 @@ class QueueCog(commands.Cog):
         if not ctx.voice_client.is_playing():
             song = queue.get_song(queue.get_current_index())
 
+            await queue.load_songs()
             queue.set_current(song=song)
             queue.set_current_index(queue.get_current_index() + 1)
 
             queue.unpause()
 
             timer.start()
+
+            if not song.audio or song.is_restricted:
+                logger.warning(f"Song at index {queue.get_current_index()} has no audio, skipping.")
+                await embed.send_error(title="There was an error while loading, skipping...", description=song.title, context=ctx)
+                return await self._play_next_song(ctx=ctx)
+
             ctx.voice_client.play(song.audio, after=lambda e: ctx.bot.loop.create_task(self._play_next_song(ctx=ctx)))
-            await embed.send_embed(title="Song playing", description=song.title, context=ctx)
+            await embed.send_embed(title="Song playing", description=song.title, footer=f"By {song.artist}", context=ctx)
 
         
     def _seconds_to_time(self, seconds: int) -> str:
@@ -194,27 +201,21 @@ class QueueCog(commands.Cog):
 
     @commands.hybrid_command(name="add", description="Adds a song to the queue via a link or YouTube url.")
     async def add(self, ctx: commands.Context, prompt: str) -> None:
-        logger.debug("1")
         is_link = await yt_helper.identify_link(query=prompt)
 
-        logger.debug("2")
         message = None
         await ctx.interaction.response.defer()
         yt_url = ""
 
         if is_link == "yt_link":
-            logger.debug("yt_link")
             message = await embed.send_embed("Adding song to queue.", context=ctx, color=discord.Color.yellow())
             yt_url = prompt
         elif is_link == "unknown_link":
             await embed.send_error(title="Unsupported link.", context=ctx)
             return
         else:
-            logger.debug("prompt")
             message = await embed.send_embed(title=f"Searching for {prompt}.", color=discord.Color.yellow(), context=ctx)
-            logger.debug("3")
             video_id = await yt_helper.search_youtube(message=message, query=prompt)
-            logger.debug("4")
             try:
                 await message.edit(embed=discord.Embed(title="Adding song to queue.", color=discord.Color.yellow()))
             except Exception as e:
@@ -222,10 +223,18 @@ class QueueCog(commands.Cog):
             yt_url = f"https://www.youtube.com/watch?v={video_id}"
 
         song = Song(url=yt_url)
-        logger.debug("song shitted")
         queue.add(song=song)
-        logger.debug("vallah")
-        logger.debug(song.title)
+
+        current_index = queue.get_current_index()
+
+        if current_index == 0:
+            logger.debug("loading song during add")
+            queue.load_current_song()
+
+        if current_index >= len(queue.queue)-2:
+            logger.debug("loading song during add")
+            queue.load_song(len(queue.queue)-1)
+
         try:
             await message.edit(embed=discord.Embed(
                 title=f"{song.title} has been added to the queue.",
@@ -233,7 +242,6 @@ class QueueCog(commands.Cog):
             ))
         except Exception as e:
             logger.error(e)
-        logger.debug("what the actual fuck")
 
     @commands.hybrid_command(name="play", description="Plays the queue.")
     async def play(self, ctx: commands.Context) -> None:

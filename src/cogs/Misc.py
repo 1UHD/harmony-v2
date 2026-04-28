@@ -39,9 +39,21 @@ class Misc(commands.Cog):
         progress_index = math.ceil(time_elapsed / (song_length / 15)) - 1
         progress[progress_index] = "o"
 
+        current = queue.get_current()
+
+        desc = f"""
+            by **{current.artist}**
+
+            {self._seconds_to_time(time_elapsed)} {''.join(i for i in progress)} {self._seconds_to_time(song_length)}
+
+            Views: {current.prettify_number(current.views)}
+            Likes: {current.prettify_number(current.likes)}
+            Uploaded on {current.prettify_upload_date()}
+        """
+
         await embed.send_embed(
-            title=queue.get_current().title,
-            description=f"{self._seconds_to_time(time_elapsed)} {''.join(i for i in progress)} {self._seconds_to_time(song_length)}",
+            title=current.title,
+            description=desc,
             thumbnail=queue.get_current().thumbnail,
             context=ctx
         )

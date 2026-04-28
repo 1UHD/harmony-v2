@@ -30,7 +30,7 @@ class Logger:
 
         caller = self._get_caller_info()
         timestamp = strftime("%H:%M:%S", localtime())
-        message = f"[{timestamp}] [{Colors.PURPLE}{caller}{Colors.END}] {level}: {message}"
+        message = f"[{timestamp}] {level} [{Colors.PURPLE}{caller}{Colors.END}]: {message}"
 
         if self.log_to_console:
             print(message)
@@ -45,7 +45,7 @@ class Logger:
     def warning(self, message : str, bypass_anti_debug : bool = False) -> None:
         self._log(level=f"{Colors.YELLOW}{Colors.BOLD}{'WARNING':<7}{Colors.END}", message=message, bypass_anti_debug=bypass_anti_debug)
 
-    def error(self, message : str, bypass_anti_debug : bool = False) -> None:
+    def error(self, message : str, bypass_anti_debug : bool = True) -> None:
         self._log(level=f"{Colors.RED}{Colors.BOLD}{'ERROR':<7}{Colors.END}", message=message, bypass_anti_debug=bypass_anti_debug)
 
     def debug(self, message : str) -> None:

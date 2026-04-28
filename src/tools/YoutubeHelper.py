@@ -24,6 +24,9 @@ class YoutubeHelper:
 
         return video_id[0]
 
+    def id_to_link(self, video_id: str) -> str:
+        return f"https://www.youtube.com/watch?v={video_id}"
+
     async def identify_link(self, query: str) -> str:
         logger.debug("start identifying")
         if "https://" in query and "youtube" in query:

@@ -18,3 +18,5 @@ url = ""
 with yt_dlp.YoutubeDL(yt_dlp_config) as ydl:
     logger.debug("extracting")
     info_dict = ydl.extract_info(url, download=False)
+
+    logger.debug(info_dict)
