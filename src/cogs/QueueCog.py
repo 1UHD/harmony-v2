@@ -228,12 +228,17 @@ class QueueCog(commands.Cog):
         current_index = queue.get_current_index()
 
         if current_index == 0:
-            logger.debug("loading song during add")
+            logger.debug("loading song during add command due to index 0")
             queue.load_current_song()
 
-        if current_index >= len(queue.queue)-2:
-            logger.debug("loading song during add")
+        elif current_index >= len(queue.queue)-2:
+            logger.debug("loading song during add command due to high index")
             queue.load_song(len(queue.queue)-1)
+
+        if song.title == "":
+            logger.debug("adding title")
+            song_title = await yt_helper.get_yt_title(song.url)
+            song.title = song_title
 
         try:
             await message.edit(embed=discord.Embed(

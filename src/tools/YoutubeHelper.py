@@ -41,7 +41,7 @@ class YoutubeHelper:
         
 
     async def get_yt_title(self, url: str) -> str:
-        logger.debug(f"starting coroutine for {url}")
+        logger.debug(f"fetching title for {url}")
         rep = await asyncio.to_thread(requests.get, url)
 
         soup = BeautifulSoup(rep.text, features="html.parser")
