@@ -6,6 +6,7 @@ import src.tools.embeds as embed
 from src.tools.Queue import queue
 from src.tools.Timer import timer
 from src.tools.logging import logger
+from src.tools.Prettifier import list_prettifier
 
 class Misc(commands.Cog):
     
@@ -57,6 +58,17 @@ class Misc(commands.Cog):
             thumbnail=queue.get_current().thumbnail,
             context=ctx
         )
+    
+    @commands.hybrid_command(name="experimental", description="experimental command, might nuke your pc.")
+    async def experimental_command(self, ctx: commands.Context) -> None:
+        queue_list = queue.queue
+
+        if len(queue_list) == 0:
+            await embed.send_error(title="Queue is currently empty", context=ctx)
+            return
+
+        await list_prettifier.send_as_embed(title="Queue", song_list=queue_list, ctx=ctx)
+
 
 async def setup(bot: commands.Bot) -> None:
     await bot.add_cog(Misc(bot=bot))

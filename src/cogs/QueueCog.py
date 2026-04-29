@@ -182,6 +182,7 @@ class QueueCog(commands.Cog):
 
     @queue.command(name="clear", description="Clears the queue.")
     async def queue_clear(self, ctx: commands.Context) -> None:
+
         if queue.get_length() < 1:
             await embed.send_error(title="Queue is empty.", context=ctx)
             return
