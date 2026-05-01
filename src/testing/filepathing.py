@@ -34,13 +34,14 @@ def test_yt_title() -> None:
 
 def test_playlistv2() -> None:
     playlist_manager.create_playlist("testlist")
-    pl = playlist_manager._get_playlist_object_by_name("testlist")
+    pl = playlist_manager.get_playlist_object_by_name("testlist")
 
-    test_url = "https://www.youtube.com/watch?v=fJ9rUzIMcZQ"
-    s1 = Song(test_url)
-    s1.get_audio()
-
-    playlist_manager.add_song(s1, pl)
+    #test_url = "https://www.youtube.com/watch?v=fJ9rUzIMcZQ"
+    #s1 = Song(test_url)
+    #s1.get_audio()
+    logger.debug(playlist_manager.playlists)
+    playlist_manager.remove_playlist(pl)
+    logger.debug(playlist_manager.playlists)
 
 def main() -> None:
     test_playlistv2()

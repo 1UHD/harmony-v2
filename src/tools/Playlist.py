@@ -61,7 +61,7 @@ class PlaylistUtilityCsv:
 
         try:
             for file in os.listdir(self.path):
-                if file.endswith(".csv"):
+                if file.endswith(".json"):
                     playlist_files.append(file)
 
         except Exception as e:
@@ -71,36 +71,38 @@ class PlaylistUtilityCsv:
         
         return playlist_files
 
-    #format: url,title,artist,artist_subs,thumbnail,views,likes,upload_date,length,is_restricted,audio_url
-    def _song_to_csv_format(self, s: Song) -> str:
-        return f"{s.url},{s.title},{s.artist},{s.artist_subs},{s.thumbnail},{s.views},{s.likes},{s.upload_date},{s.length},{s.is_restricted},{s.audio_url}\n"
+    def _song_to_json(self, s: song) -> dict:
+        return {
+            "url": s.url,
+            "title": s.title,
+            "artist": s.artist,
+            "artist_subs": s.artist_subs,
+            "thumbnail": s.thumbnail,
+            "views": s.views,
+            "likes": s.likes,
+            "upload_date": s.upload_date,
+            "length": s.length,
+            "is_restricted": s.is_restricted,
+            "audio_url": s.audio_url
+        }
 
-    def _convert_to_int(self, value: str) -> int | None:
-        try:
-            return int(value)
-        except:
-            logger.warning(f"Couldnt parse value {value} during csv conversion")
-            return None
-
-    def _csv_format_to_song(self, line: str) -> Song:
-        c = line.split(",")
-
-        s = Song(url=c[0])
-        s.title = c[1]
-        s.artist = c[2]
-        s.artist_subs = self._convert_to_int(c[3])
-        s.thumbnail = c[4]
-        s.views = self._convert_to_int(c[5])
-        s.likes = self._convert_to_int(c[6])
-        s.upload_date = c[7]
-        s.length = self._convert_to_int(c[8])
-        s.is_restricted = True if c[9] == "True" else False
-        s.audio_url = c[10]
+    def _json_to_song(self, j: dict) -> Song:
+        s = Song(url=j["url"])
+        s.title = j["title"]
+        s.artist = j["artist"]
+        s.artist_subs = j["artist_subs"]
+        s.thumbnail = j["thumbnail"]
+        s.views = j["views"]
+        s.likes = j["likes"]
+        s.upload_date = j["upload_date"]
+        s.length = j["length"]
+        s.is_restricted = j["is_restricted"]
+        s.audio_url = j["audio_url"]
         s.use_audio_url()
 
         return s
 
-    def _get_playlist_object_by_name(self, name: str) -> Playlist | None:
+    def get_playlist_object_by_name(self, name: str) -> Playlist | None:
         for pl in self.playlists:
             if pl.name == name:
                 return pl
@@ -108,17 +110,23 @@ class PlaylistUtilityCsv:
         return None
 
     def write_playlist(self, name: str, songs: list[Song]) -> None:
-        playlist_path = os.path.join(self.path, f"{name}.csv")
-        playlist_header = name
-        playlist_songs = "".join(self._song_to_csv_format(s) for s in songs) if len(songs) > 0 else ""
-        data = playlist_header + "\n" + playlist_songs
+        playlist_path = os.path.join(self.path, f"{name}.json")
+        playlist_songs = []
+
+        for s in songs:
+            playlist_songs.append(self._song_to_json(s))
+
+        data = {
+            "type": "harmony_v2_playlist_v2",
+            "name": name,
+            "songs": playlist_songs
+        }
 
         with open(playlist_path, "w") as f:
-            f.write(data)
+            f.write(json.dumps(data, indent=4))
 
-        logger.info(f"Wrote playlist csv for {name}")
+        logger.info(f"Wrote playlist json for {name}")
 
-    #first line: playlist header, x after that songs in playlist
     def read_playlist(self, filename: str) -> None:
         file_path = os.path.join(self.path, filename)
         if not os.path.exists(file_path):
@@ -126,21 +134,29 @@ class PlaylistUtilityCsv:
             return
 
         with open(file_path, "r") as f:
-            playlist_data = f.read()
+            playlist_data_string = f.read()
 
-        playlist_members = playlist_data.split("\n")
-        playlist_header = playlist_members[0]
-        playlist_songs = playlist_members[1:]
+        playlist_data = json.loads(playlist_data_string)
 
-        playlist_headers = playlist_header.split(",")
-        pl = Playlist(name=playlist_headers[0])
+        try:
+            header = playlist_data["type"]
+
+            if header != "harmony_v2_playlist_v2":
+                logger.error(f"cant load playlist {filename}: unknown playlist type")
+                return
+        except:
+            logger.error(f"Can't load playlist {filename}: outdated playlist")
+            return
+
+        playlist_songs = playlist_data["songs"]
+
+        pl = Playlist(name=playlist_data["name"])
         self.playlists.append(pl)
 
         for song in playlist_songs:
-            if len(song) > 0:
-                pl.songs.append(self._csv_format_to_song(song))
+            pl.songs.append(self._json_to_song(song))
 
-        logger.info(f"Loaded playlists {pl.name} with {pl.song_amount} songs")
+        logger.info(f"Loaded playlist {pl.name} with {len(pl.songs)} songs")
 
     def is_available(self, name: str) -> bool:
         for p in self.playlists:
@@ -159,10 +175,12 @@ class PlaylistUtilityCsv:
             self.save_playlist(pl)
 
     def remove_playlist(self, pl: Playlist) -> None:
-        playlist_path = os.path.join(self.path, f"{pl.name}.csv")
+        playlist_path = os.path.join(self.path, f"{pl.name}.json")
 
         if os.path.exists(playlist_path):
             os.remove(playlist_path)
+            logger.info(f"Removed {pl.name}")
+            self.playlists.remove(pl)
         else:
             logger.warning(f"Path for {pl.name} doesnt exist")
 
@@ -171,8 +189,11 @@ class PlaylistUtilityCsv:
         self.save_playlist(pl)
 
     def remove_song(self, pl: Playlist, index: int) -> None:
-        if index > 0 and index <= pl.song_amount:
+        if index > 0 and index <= len(pl.songs):
+            logger.debug(f"removing song at index {index-1} of {pl.name}")
             pl.songs.pop(index-1)
+
+        self.save_playlist(pl)
 
 
 
