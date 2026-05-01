@@ -19,7 +19,11 @@ class Song:
 
         self.is_restricted = False
         self.length = 0
+        self.audio_url = ""
         self.audio = None
+    
+    def use_audio_url(self) -> None:
+        self.audio = discord.FFmpegPCMAudio(self.audio_url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5")
 
     def get_audio(self) -> bool:
         if self.audio:
@@ -55,7 +59,7 @@ class Song:
             self.artist_subs = info_dict["channel_follower_count"]
             self.likes = info_dict["like_count"]
             self.upload_date = info_dict["upload_date"]
-
+            self.audio_url = info_dict["url"]
             self.audio = discord.FFmpegPCMAudio(info_dict["url"], before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5")
         
         logger.debug("finished gathering song info")

@@ -49,7 +49,7 @@ class SongListPrettifierView(discord.ui.View):
 
 class SongListPrettifier:
     def __init__(self) -> None:
-        self.discord_limit = 128 #max bytes allowed in a discord embed description is 4096
+        self.discord_limit = 4096 #max bytes allowed in a discord embed description is 4096
 
     def prettify(self, songs: list[Song]) -> list[str]:
         title_list = [[]]

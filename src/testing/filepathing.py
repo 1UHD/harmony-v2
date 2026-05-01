@@ -5,7 +5,7 @@ from src.tools.Song import Song
 from src.tools.logging import logger
 from src.tools.MP3Helper import mp3loader
 from src.tools.Queue import queue
-from src.tools.Playlist import PlaylistManager
+from src.tools.Playlist import PlaylistManager, playlist_manager
 from src.tools.YoutubeHelper import yt_helper
 from src.tools.setup import setup
 from src.tools.PackageManager import packageManager, projectUpdater
@@ -32,8 +32,18 @@ def test_yt_title() -> None:
     logger.debug(title)
     logger.debug(f"took {time.time() - start}s")
 
+def test_playlistv2() -> None:
+    playlist_manager.create_playlist("testlist")
+    pl = playlist_manager._get_playlist_object_by_name("testlist")
+
+    test_url = "https://www.youtube.com/watch?v=fJ9rUzIMcZQ"
+    s1 = Song(test_url)
+    s1.get_audio()
+
+    playlist_manager.add_song(s1, pl)
+
 def main() -> None:
-    test_yt_title()
+    test_playlistv2()
     
 
     
