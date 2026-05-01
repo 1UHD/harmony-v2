@@ -14,6 +14,7 @@ from src.tools.Song import Song
 from src.tools.Queue import queue
 from src.tools.Timer import timer
 from src.tools.YoutubeHelper import yt_helper
+from src.tools.Prettifier import list_prettifier
 
 class QueueCog(commands.Cog):
     
@@ -146,22 +147,13 @@ class QueueCog(commands.Cog):
 
     @queue.command(name="list", description="Displays the queue.")
     async def queue_list(self, ctx: commands.Context) -> None:
-        if queue.get_length() < 1 and not queue.get_current():
-            await embed.send_embed(title="The queue is empty.", context=ctx)
+        queue_list = queue.queue
+
+        if len(queue_list) == 0:
+            await embed.send_error(title="Queue is currently empty", context=ctx)
             return
-        
-        remaining_time = queue.get_duration() 
 
-        if queue.get_current():
-            remaining_time += queue.get_current().length - round(timer.get_time_elapsed())
-        remaining_songs = queue.get_length()
-
-        await embed.send_embed(
-            title=f"Currently: {queue.get_current().title if queue.get_current() else 'None'}",
-            description=f"{queue.get_formatted()}",
-            footer=f"{remaining_songs} song{'s' if queue.get_length() > 1 else ''}; {self._seconds_to_time(remaining_time)} remaining",
-            context=ctx
-        )
+        await list_prettifier.send_as_embed(title="Queue", song_list=queue_list, ctx=ctx)
 
     @queue.command(name="remove", description="Removes a song from the queue.")
     async def queue_remove(self, ctx: commands.Context, index: int) -> None:

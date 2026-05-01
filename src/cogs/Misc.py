@@ -7,6 +7,7 @@ from src.tools.Queue import queue
 from src.tools.Timer import timer
 from src.tools.logging import logger
 from src.tools.Prettifier import list_prettifier
+from src.tools.Playlist import playlist_manager, Playlist
 
 class Misc(commands.Cog):
     
@@ -59,15 +60,15 @@ class Misc(commands.Cog):
             context=ctx
         )
     
+    async def playlist_autocomplete(self, interaction: discord.Interaction, current: str) -> list[discord.app_commands.Choice]:
+        filtered = [p for p in playlist_manager.playlists if current.lower() in p.name.lower()]
+
+        return [discord.app_commands.Choice(name=p.name, value=p.name) for p in filtered[:25]]
+
     @commands.hybrid_command(name="experimental", description="experimental command, might nuke your pc.")
-    async def experimental_command(self, ctx: commands.Context) -> None:
-        queue_list = queue.queue
-
-        if len(queue_list) == 0:
-            await embed.send_error(title="Queue is currently empty", context=ctx)
-            return
-
-        await list_prettifier.send_as_embed(title="Queue", song_list=queue_list, ctx=ctx)
+    @discord.app_commands.autocomplete(playlist = playlist_autocomplete)
+    async def experimental_command(self, ctx: commands.Context, playlist: str) -> None:
+        await embed.send_embed(title=f"You picked: {playlist}", context=ctx)
 
 
 async def setup(bot: commands.Bot) -> None:

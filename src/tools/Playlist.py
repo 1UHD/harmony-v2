@@ -195,6 +195,13 @@ class PlaylistUtilityCsv:
 
         self.save_playlist(pl)
 
+    def queue(self, pl: Playlist) -> None:
+        if pl.get_song_amount() < 1:
+            logger.warning("cant queue a playlist with 0 songs, aborting")
+            return
+
+        for s in pl.songs:
+            queue.add(song=song)
 
 
 class PlaylistUtility:
@@ -336,5 +343,5 @@ class PlaylistUtility:
         else:
             logger.error(f"Playlist '{name}' does not exist.")
 
-PlaylistManager = PlaylistUtility()
+#PlaylistManager = PlaylistUtility()
 playlist_manager = PlaylistUtilityCsv()

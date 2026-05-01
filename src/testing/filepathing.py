@@ -39,9 +39,6 @@ def test_playlistv2() -> None:
     #test_url = "https://www.youtube.com/watch?v=fJ9rUzIMcZQ"
     #s1 = Song(test_url)
     #s1.get_audio()
-    logger.debug(playlist_manager.playlists)
-    playlist_manager.remove_playlist(pl)
-    logger.debug(playlist_manager.playlists)
 
 def main() -> None:
     test_playlistv2()
