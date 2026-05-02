@@ -98,8 +98,10 @@ class ProjectUpdater:
         for file in os.listdir(os.path.join(extracted_folder, f"harmony-v2-{self.latest_version}")):
             shutil.move(os.path.join(extracted_folder, f"harmony-v2-{self.latest_version}/{file}"), self.project_path)
 
+
         shutil.rmtree(extracted_folder)
-        os.remove(zip_path)
+        if os.path.exists(zip_path):
+            os.remove(zip_path)
 
     def check_for_update(self) -> None:
         if self.latest_version is None:
