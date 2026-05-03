@@ -322,6 +322,8 @@ class QueueCog(commands.Cog):
         queue.set_current_index(queue.get_current_index() + (times - 1))
         ctx.voice_client.stop()
 
+        queue.load_current_song()
+
         await embed.send_embed(title=f"Skipped {times} song{'s' if times > 1 else ''}.", context=ctx)
 
     @commands.hybrid_command(name="jump", description="Jumps to a song.")

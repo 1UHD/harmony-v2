@@ -201,7 +201,7 @@ class PlaylistUtilityCsv:
             return
 
         for s in pl.songs:
-            queue.add(song=song)
+            queue.add(song=s)
 
 
 class PlaylistUtility:

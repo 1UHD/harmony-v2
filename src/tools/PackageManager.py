@@ -63,6 +63,7 @@ class ProjectUpdater:
             logger.error("Failed to fetch latest release.")
             return None
         
+    #TODO: rewrite this absolute stinker
     def _download_latest_release(self) -> None:
         if self.latest_version is None:
             return
