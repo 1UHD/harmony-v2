@@ -98,7 +98,7 @@ class PlaylistUtilityCsv:
         s.length = j["length"]
         s.is_restricted = j["is_restricted"]
         s.audio_url = j["audio_url"]
-        s.use_audio_url()
+        #s.use_audio_url() #unfortunately youtube changes this so we need to refetch it
 
         return s
 
@@ -155,6 +155,9 @@ class PlaylistUtilityCsv:
 
         for song in playlist_songs:
             pl.songs.append(self._json_to_song(song))
+
+        if len(pl.songs) > 0:
+            pl.songs[0].get_audio()
 
         logger.info(f"Loaded playlist {pl.name} with {len(pl.songs)} songs")
 
