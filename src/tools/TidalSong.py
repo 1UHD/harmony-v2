@@ -1,41 +1,30 @@
 import time
 import discord
+from tidalapi.media import Track
 import yt_dlp
 from src.settings import bitrate
+from src.tools.Song import Song
+from src.tools.TidalHelper import tidal_helper
 from src.tools.logging import logger
 
-class Song:
-    title: str
-    thumbnail: str
-    artist: str
-    artist_subs: int
-    views: int
-    likes: int
-    upload_date: str
-    is_restricted: bool
-    length: int
-    audio_url: str
-    audio: None | discord.FFmpegPCMAudio
-    
-    def __init__(self) -> None:
-        self.title = ""
-        self.thumbnail = ""
-        self.artist = ""
-        self.artist_subs = 0
-        self.views = 0
-        self.likes = 0
-        self.upload_date = ""
+class TidalSong(Song):
+    track: Track
 
-        self.is_restricted = False
-        self.length = 0
-        self.audio_url = ""
-        self.audio = None
+    def __init__(self, track: Track) -> None:
+        self.track = track
+        super().__init__()
     
-    def use_audio_url(self) -> None:
-        self.audio = discord.FFmpegPCMAudio(self.audio_url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5")
-
     def get_audio(self) -> bool:
-        return False
+        info_dict = tidal_helper.get_track_info(self.track)
+        self.title = self.track.title
+        self.length = self.track.duration
+        artist = self.track.artist
+        if artist:
+            self.artist = artist.name
+        self.audio_url = tidal_helper.get_link(self.track)
+        super().use_audio_url()
+        logger.debug("Finished gathering song info")
+        return True
 
     def prettify_upload_date(self) -> str:
         return f"{self.upload_date[-2:]}.{self.upload_date[-4:-2]}.{self.upload_date[:-4]}"

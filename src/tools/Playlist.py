@@ -3,6 +3,7 @@ import json
 import time
 import asyncio
 
+from src.tools.YTSong import YTSong
 from src.tools.Song import Song
 from src.tools.logging import logger
 from src.tools.Queue import queue
@@ -71,7 +72,7 @@ class PlaylistUtilityCsv:
         
         return playlist_files
 
-    def _song_to_json(self, s: song) -> dict:
+    def _song_to_json(self, s: YTSong) -> dict:
         return {
             "url": s.url,
             "title": s.title,

@@ -17,3 +17,6 @@ src/testing/.DS_Store
 src/tools/.DS_Store
 
 harmony
+
+tidal-session-oauthn.json
+pyrightconfig.json

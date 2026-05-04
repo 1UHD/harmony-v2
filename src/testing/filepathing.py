@@ -1,6 +1,7 @@
 import json
 import time
 import asyncio
+from src.tools import YTSong
 from src.tools.Song import Song
 from src.tools.logging import logger
 from src.tools.MP3Helper import mp3loader
@@ -13,7 +14,7 @@ from src.tools.PackageManager import packageManager, projectUpdater
 def test_info_dict() -> None:
     video_id = asyncio.run(yt_helper.search_youtube("never gonna give you up"))
     yt_url = yt_helper.id_to_link(video_id)
-    song = Song(yt_url)
+    song = YTSong.YTSong(yt_url)
     song.get_audio()
     song.print_self()
     #with open("/Users/kurt/Documents/Programming/harmony-v2/src/testing/info_dict.txt", "w") as file:

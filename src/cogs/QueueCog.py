@@ -8,9 +8,9 @@ import shutil
 import re
 import os
 
-import src.tools.embeds as embed
+import src.tools.embeds as embeds
 from src.tools.logging import logger
-from src.tools.Song import Song
+from src.tools.YTSong import YTSong
 from src.tools.Queue import queue
 from src.tools.Timer import timer
 from src.tools.YoutubeHelper import yt_helper
@@ -70,7 +70,7 @@ class QueueCog(commands.Cog):
 
     async def _handle_vc(self, ctx: commands.Context) -> None:
         if not ctx.author.voice:
-            await embed.send_error("You're not in a voice channel.", context=ctx)
+            await embeds.send_error("You're not in a voice channel.", context=ctx)
             return
 
         if not ctx.voice_client:
@@ -86,12 +86,12 @@ class QueueCog(commands.Cog):
             return
         
         if ctx.voice_client.is_playing() or queue.is_paused():
-            await embed.send_error(title="The bot is already playing.", context=ctx)
+            await embeds.send_error(title="The bot is already playing.", context=ctx)
             return
 
         if queue.get_length() < 1 and not queue.is_looped():
             queue.set_current(None)
-            await embed.send_error("Queue is empty.", context=ctx)
+            await embeds.send_error("Queue is empty.", context=ctx)
             return
         
         if not ctx.voice_client.is_playing():
@@ -107,11 +107,11 @@ class QueueCog(commands.Cog):
 
             if not song.audio or song.is_restricted:
                 logger.warning(f"Song at index {queue.get_current_index()} has no audio, skipping.")
-                await embed.send_error(title="There was an error while loading, skipping...", description=song.title, context=ctx)
+                await embeds.send_error(title="There was an error while loading, skipping...", description=song.title, context=ctx)
                 return await self._play_next_song(ctx=ctx)
 
             ctx.voice_client.play(song.audio, after=lambda e: ctx.bot.loop.create_task(self._play_next_song(ctx=ctx)))
-            await embed.send_embed(title="Song playing", description=song.title, footer=f"By {song.artist}", context=ctx)
+            await embeds.send_embed(title="Song playing", description=song.title, footer=f"By {song.artist}", context=ctx)
 
         
     def _seconds_to_time(self, seconds: int) -> str:
@@ -129,7 +129,7 @@ class QueueCog(commands.Cog):
     @commands.hybrid_group(name="queue", description="Provides information about the queue.")
     async def queue(self, ctx: commands.Context) -> None:
         if not ctx.invoked_subcommand:
-            await embed.send_error(title="Wrong usage, see `/help queue` for more info.", context=ctx)
+            await embeds.send_error(title="Wrong usage, see `/help queue` for more info.", context=ctx)
 
     @queue.command(name="play", description="Plays the queue.")
     async def queue_play(self, ctx: commands.Context) -> None:
@@ -139,7 +139,7 @@ class QueueCog(commands.Cog):
             await self.bot.close()
 
         if ctx.voice_client.is_playing():
-            await embed.send_error("The bot is already playing.")
+            await embeds.send_error("The bot is already playing.")
             return
 
         await self._handle_vc(ctx=ctx)
@@ -150,7 +150,7 @@ class QueueCog(commands.Cog):
         queue_list = queue.queue
 
         if len(queue_list) == 0:
-            await embed.send_error(title="Queue is currently empty", context=ctx)
+            await embeds.send_error(title="Queue is currently empty", context=ctx)
             return
 
         await list_prettifier.send_as_embed(title="Queue", song_list=queue_list, ctx=ctx)
@@ -158,11 +158,11 @@ class QueueCog(commands.Cog):
     @queue.command(name="remove", description="Removes a song from the queue.")
     async def queue_remove(self, ctx: commands.Context, index: int) -> None:
         if queue.get_length() < 1:
-            await embed.send_error(title="Queue is empty.", context=ctx)
+            await embeds.send_error(title="Queue is empty.", context=ctx)
             return
         
         if index == queue.get_current_index():
-            await embed.send_error(title="The currently playing song cannot be removed.", context=ctx)
+            await embeds.send_error(title="The currently playing song cannot be removed.", context=ctx)
             return
         
         queue.remove(index - 1) 
@@ -170,17 +170,17 @@ class QueueCog(commands.Cog):
         if index < queue.get_current_index():
             queue.set_current_index(queue.get_current_index() - 1)
 
-        await embed.send_embed(title=f"Removed {index}", context=ctx)
+        await embeds.send_embed(title=f"Removed {index}", context=ctx)
 
     @queue.command(name="clear", description="Clears the queue.")
     async def queue_clear(self, ctx: commands.Context) -> None:
 
         if queue.get_length() < 1:
-            await embed.send_error(title="Queue is empty.", context=ctx)
+            await embeds.send_error(title="Queue is empty.", context=ctx)
             return
         
         if ctx.voice_client.is_playing() or queue.is_paused():
-            await embed.send_error(title="The bot is still playing.", context=ctx)
+            await embeds.send_error(title="The bot is still playing.", context=ctx)
             return
         
         queue.clear()
@@ -189,7 +189,7 @@ class QueueCog(commands.Cog):
     async def queue_restart(self, ctx: commands.Context) -> None:
         queue.set_current_index(0)
 
-        await embed.send_embed(title="Jumped to the start of the queue.", context=ctx)
+        await embeds.send_embed(title="Jumped to the start of the queue.", context=ctx)
 
 
     @commands.hybrid_command(name="add", description="Adds a song to the queue via a link or YouTube url.")
@@ -201,13 +201,13 @@ class QueueCog(commands.Cog):
         yt_url = ""
 
         if is_link == "yt_link":
-            message = await embed.send_embed("Adding song to queue.", context=ctx, color=discord.Color.yellow())
+            message = await embeds.send_embed("Adding song to queue.", context=ctx, color=discord.Color.yellow())
             yt_url = prompt
         elif is_link == "unknown_link":
-            await embed.send_error(title="Unsupported link.", context=ctx)
+            await embeds.send_error(title="Unsupported link.", context=ctx)
             return
         else:
-            message = await embed.send_embed(title=f"Searching for {prompt}.", color=discord.Color.yellow(), context=ctx)
+            message = await embeds.send_embed(title=f"Searching for {prompt}.", color=discord.Color.yellow(), context=ctx)
             video_id = await yt_helper.search_youtube(message=message, query=prompt)
             try:
                 await message.edit(embed=discord.Embed(title="Adding song to queue.", color=discord.Color.yellow()))
@@ -215,7 +215,7 @@ class QueueCog(commands.Cog):
                 logger.error(e)
             yt_url = f"https://www.youtube.com/watch?v={video_id}"
 
-        song = Song(url=yt_url)
+        song = YTSong(url=yt_url)
         queue.add(song=song)
 
         current_index = queue.get_current_index()
@@ -252,7 +252,7 @@ class QueueCog(commands.Cog):
     @commands.hybrid_command(name="stop", aliases=["stfu"], description="Stops the music.")
     async def stop(self, ctx: commands.Context) -> None:
         if not ctx.voice_client:
-            await embed.send_error(title="The bot is not playing.", context=ctx)
+            await embeds.send_error(title="The bot is not playing.", context=ctx)
             return
         
         queue.unpause()
@@ -260,29 +260,29 @@ class QueueCog(commands.Cog):
         queue.set_current(None)
         ctx.voice_client.stop()
         await ctx.voice_client.disconnect()
-        await embed.send_embed(title="Stopped music.", context=ctx)
+        await embeds.send_embed(title="Stopped music.", context=ctx)
 
     @commands.hybrid_command(name="pause", description="Pauses the music.")
     async def pause(self, ctx: commands.Context) -> None:
         if not ctx.voice_client or (not ctx.voice_client.is_playing() and not queue.is_paused()):
-            await embed.send_error(title="The bot is not playing.", context=ctx)
+            await embeds.send_error(title="The bot is not playing.", context=ctx)
             return
 
         if not queue.is_paused():
             ctx.voice_client.pause()
             timer.pause()
             queue.pause()
-            await embed.send_embed(title="The music has been paused.", context=ctx)
+            await embeds.send_embed(title="The music has been paused.", context=ctx)
 
         else:
             ctx.voice_client.resume()
             timer.unpause()
             queue.unpause()
-            await embed.send_embed(title="The music has been unpaused.", context=ctx)
+            await embeds.send_embed(title="The music has been unpaused.", context=ctx)
 
     @commands.hybrid_command(name="loop", description="Loops the music.")
     async def loop(self, ctx: commands.Context) -> None:
-        await embed.send_error(title="Looping is currently unsupported.", context=ctx)
+        await embeds.send_error(title="Looping is currently unsupported.", context=ctx)
 
         #TODO: create a working loop command.
         #this commands logic needs to be rewritten, streamed music is only available once
@@ -305,15 +305,15 @@ class QueueCog(commands.Cog):
     @commands.hybrid_command(name="skip", description="Skips x amount of song(s).")
     async def skip(self, ctx: commands.Context, times: int = 1) -> None:
         if not ctx.voice_client or (not ctx.voice_client.is_playing() and not queue.is_paused()):
-            await embed.send_embed(title="The bot is not playing.", context=ctx)
+            await embeds.send_embed(title="The bot is not playing.", context=ctx)
             return
 
         if times < 1:
-            await embed.send_error(title="You need to skip at least 1 song.", context=ctx)
+            await embeds.send_error(title="You need to skip at least 1 song.", context=ctx)
             return
 
         if queue.get_length() == 0:
-            await embed.send_error(title="Queue is empty.", context=ctx)
+            await embeds.send_error(title="Queue is empty.", context=ctx)
             return
 
         if times > queue.get_length():
@@ -324,7 +324,7 @@ class QueueCog(commands.Cog):
 
         queue.load_current_song()
 
-        await embed.send_embed(title=f"Skipped {times} song{'s' if times > 1 else ''}.", context=ctx)
+        await embeds.send_embed(title=f"Skipped {times} song{'s' if times > 1 else ''}.", context=ctx)
 
     @commands.hybrid_command(name="jump", description="Jumps to a song.")
     async def jump(self, ctx: commands.Context, song: int) -> None:
@@ -334,7 +334,7 @@ class QueueCog(commands.Cog):
             song = 0
 
         queue.set_current_index(song - 1)
-        await embed.send_embed(title=f"Jumped to {song}. It will play after this song.", context=ctx)
+        await embeds.send_embed(title=f"Jumped to {song}. It will play after this song.", context=ctx)
 
     @commands.command(name="test")
     async def test(self, ctx: commands.Context) -> None:

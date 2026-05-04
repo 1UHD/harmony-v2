@@ -4,6 +4,7 @@ from src.settings import KEY, LOGO, VERSION, BETA, COGS_DIR, debug_mode, no_upda
 from src.tools.logging import logger, Colors
 from src.tools.PackageManager import packageManager
 from src.tools.setup import setup
+import traceback
 
 class Main:
 
@@ -32,7 +33,8 @@ class Main:
                     await self.bot.load_extension(f"src.cogs.{cog.name[:-3]}")
                     logger.info(f"Initialized Cog: {cog.name[:-3]}")
                 except Exception as e:
-                    logger.error(f"Error while loading extension {cog.name}: {e}")
+                        traceback.print_exc()
+                        logger.error(f"Error while loading extension {cog.name}: {e}")
 
         try:
             await self.bot.tree.sync()

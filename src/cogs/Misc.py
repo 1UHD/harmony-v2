@@ -2,7 +2,8 @@ import discord
 from discord.ext import commands
 import math
 
-import src.tools.embeds as embed
+import src.tools.embeds as embeds
+import src.tools.Song 
 from src.tools.Queue import queue
 from src.tools.Timer import timer
 from src.tools.logging import logger
@@ -29,7 +30,7 @@ class Misc(commands.Cog):
     @commands.hybrid_command(name="playing", description="Provides info on the currently playing song.")
     async def playing(self, ctx: commands.Context) -> None:
         if not ctx.voice_client or (not ctx.voice_client.is_playing() and not queue.is_paused()):
-            await embed.send_embed(title="The bot is not playing.", context=ctx)
+            await embeds.send_embed(title="The bot is not playing.", context=ctx)
             return
 
         time_elapsed = round(timer.get_time_elapsed())
@@ -37,7 +38,7 @@ class Misc(commands.Cog):
 
         logger.debug(f"{time_elapsed}/{song_length}")
 
-        progress = ["-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-", "-"]
+        progress = ["-"] * 15
         progress_index = math.ceil(time_elapsed / (song_length / 15)) - 1
         progress[progress_index] = "o"
 
@@ -53,7 +54,7 @@ class Misc(commands.Cog):
             Uploaded on {current.prettify_upload_date()}
         """
 
-        await embed.send_embed(
+        await embeds.send_embed(
             title=current.title,
             description=desc,
             thumbnail=queue.get_current().thumbnail,
@@ -68,7 +69,7 @@ class Misc(commands.Cog):
     @commands.hybrid_command(name="experimental", description="experimental command, might nuke your pc.")
     @discord.app_commands.autocomplete(playlist = playlist_autocomplete)
     async def experimental_command(self, ctx: commands.Context, playlist: str) -> None:
-        await embed.send_embed(title=f"You picked: {playlist}", context=ctx)
+        await embeds.send_embed(title=f"You picked: {playlist}", context=ctx)
 
 
 async def setup(bot: commands.Bot) -> None:
