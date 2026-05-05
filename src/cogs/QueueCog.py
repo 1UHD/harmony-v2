@@ -218,15 +218,11 @@ class QueueCog(commands.Cog):
         song = YTSong(url=yt_url)
         queue.add(song=song)
 
-        current_index = queue.get_current_index()
+        if not song.get_metadata():
+            logger.error(f"Failed to load youtube url {yt_url}")
+            return 
 
-        if current_index == 0:
-            logger.debug("loading song during add command due to index 0")
-            queue.load_current_song()
-
-        elif current_index >= len(queue.queue)-2:
-            logger.debug("loading song during add command due to high index")
-            queue.load_song(len(queue.queue)-1)
+        await queue.load_songs()
 
         if song.title == "":
             logger.debug("adding title")
@@ -334,6 +330,7 @@ class QueueCog(commands.Cog):
             song = 0
 
         queue.set_current_index(song - 1)
+        await queue.load_songs()
         await embeds.send_embed(title=f"Jumped to {song}. It will play after this song.", context=ctx)
 
     @commands.command(name="test")

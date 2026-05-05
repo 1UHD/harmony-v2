@@ -1,4 +1,5 @@
 import time
+from typing import override
 import discord
 from tidalapi.media import Track
 import yt_dlp
@@ -14,15 +15,19 @@ class TidalSong(Song):
         self.track = track
         super().__init__()
     
-    def get_audio(self) -> bool:
-        info_dict = tidal_helper.get_track_info(self.track)
+    @override
+    def get_metadata(self) -> bool:
         self.title = self.track.title
         self.length = self.track.duration
         artist = self.track.artist
         if artist:
             self.artist = artist.name
+        album = self.track.album
+        if album:
+            self.thumbnail = album.image()
+        self.upload_date = str(self.track.tidal_release_date)
+        self.likes = self.track.popularity
         self.audio_url = tidal_helper.get_link(self.track)
-        super().use_audio_url()
         logger.debug("Finished gathering song info")
         return True
 

@@ -1,4 +1,5 @@
 import time
+from typing import override
 import discord
 import yt_dlp
 from src.settings import bitrate
@@ -11,10 +12,8 @@ class YTSong(Song):
         self.url = url
         super().__init__()
     
-    def use_audio_url(self) -> None:
-        self.audio = discord.FFmpegPCMAudio(self.audio_url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5")
-
-    def get_audio(self) -> bool:
+    @override
+    def get_metadata(self) -> bool:
         if self.audio:
             logger.warning("ffmpeg audio already exists, aborting", False)
             return False

@@ -31,10 +31,10 @@ class Song:
         self.audio_url = ""
         self.audio = None
     
-    def use_audio_url(self) -> None:
+    def get_audio(self) -> None:
         self.audio = discord.FFmpegPCMAudio(self.audio_url, before_options="-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5")
 
-    def get_audio(self) -> bool:
+    def get_metadata(self) -> bool:
         return False
 
     def prettify_upload_date(self) -> str:
