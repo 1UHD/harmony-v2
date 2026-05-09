@@ -31,8 +31,11 @@ class TidalSong(Song):
         logger.debug("Finished gathering song info")
         return True
 
+    @override
     def prettify_upload_date(self) -> str:
-        return f"{self.upload_date[-2:]}.{self.upload_date[-4:-2]}.{self.upload_date[:-4]}"
+        date = self.upload_date.split(" ")[0].split("-")
+
+        return f"{date[2]}.{date[1]}.{date[0]}"
 
     def prettify_number(self, value: int) -> str:
         return format(value, ",")

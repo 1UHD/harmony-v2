@@ -184,6 +184,9 @@ class QueueCog(commands.Cog):
             return
         
         queue.clear()
+        queue.set_current_index(0)
+        
+        await embeds.send_embed(title="The queue has been cleared.", context=ctx)
 
     @queue.command(name="restart", description="Jumps to the start of the queue.")
     async def queue_restart(self, ctx: commands.Context) -> None:
