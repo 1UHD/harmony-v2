@@ -32,7 +32,7 @@ class TidalCog(commands.Cog):
         """, context=ctx)
 
     @tidal.command(name="add", description="Add a tidal track to the queue")
-    async def add(self, ctx: commands.Context, prompt: str, max_results: int =1) -> None:
+    async def add(self, ctx: commands.Context, prompt: str, max_results: int = 1) -> None:
         message = await embeds.send_embed(title=f"Searching for {prompt}.", color=discord.Color.yellow(), context=ctx)
         results = tidal_helper.query(prompt, limit=max_results)
         if max_results == 1:
@@ -42,7 +42,7 @@ class TidalCog(commands.Cog):
                 logger.error("Failed to get metadata for song")
                 return
             queue.add(song)
-            await message.edit(embed=discord.Embed(title=f"Adding track to queue"))
+            await message.edit(embed=discord.Embed(title=f"Adding track to queue", color=discord.Color.blurple()))
 
             await queue.load_songs()
             try:
@@ -58,7 +58,7 @@ class TidalCog(commands.Cog):
                     logger.error("Failed to get metadata for song")
                     return
             view = SongSelectView(songs, ctx)
-            await message.edit(embed=discord.Embed(title=f"Created song selection dialog"))
+            await message.edit(embed=discord.Embed(title=f"Created song selection dialog", color=discord.Color.blurple()))
             await ctx.send("Select a song:", view=view)
 
     @tidal.command(name="album", description="Add a tidal album to the queue")
@@ -83,7 +83,7 @@ class TidalCog(commands.Cog):
         else:
             albums = results["albums"][:max_results]
             view = AlbumSelectView(albums, ctx)
-            await message.edit(embed=discord.Embed(title=f"Created song selection dialog"))
+            await message.edit(embed=discord.Embed(title=f"Created song selection dialog", color=discord.Color.blurple()))
             await ctx.send("Select an album:", view = view)
 
 
