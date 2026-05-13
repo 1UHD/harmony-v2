@@ -1,3 +1,4 @@
+from typing import override
 import discord
 from collections.abc import Sequence
 
@@ -36,7 +37,7 @@ class SongSelect(discord.ui.Select):
         if song.get_metadata():
             queue.add(song)
         await queue.load_songs()
-        await self.status_msg.edit(embed=discord.Embed(title=f"Added {song.title} to the queue"))
+        await self.status_msg.edit(embed=discord.Embed(title=f"Added {song.title} to the queue", color=discord.Color.blurple()))
         self.disabled = True
         self.placeholder = song.title[:100]
         await interaction.edit_original_response(view=self.view)
@@ -88,6 +89,7 @@ class CollectionSelect(discord.ui.Select):
         self.status_msg = status_msg
         super().__init__(placeholder="Choose a collection...", options=options, min_values=1, max_values=1)
 
+    @override
     async def callback(self, interaction: discord.Interaction):
         await interaction.response.defer()
         logger.debug("Adding collection")
@@ -99,13 +101,12 @@ class CollectionSelect(discord.ui.Select):
                 queue.add(song)
         await queue.load_songs()
         coll_type = collection.collection_type
-        await self.status_msg.edit(embed=discord.Embed(title=f"Added {coll_type} {collection.name} with {collection.num_tracks} tracks to the queue")
+        await self.status_msg.edit(embed=discord.Embed(title=f"Added {coll_type} {collection.name} with {collection.num_tracks} tracks to the queue", color=discord.Color.blurple())
         self.disabled = True
         self.placeholder = collection.name[:100]
         await interaction.edit_original_response(view=self.view)
 
-
 class CollectionSelectView(discord.ui.View):
-    def __init__(self,collections: Sequence[Collection], context: Context):
+    def __init__(self,collections: Sequence[Collection], context: Context, status_msg: discord.Message):
         super().__init__(timeout=30)
         self.add_item(CollectionSelect(collections, context, status_msg))

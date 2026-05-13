@@ -59,7 +59,7 @@ class TidalCog(commands.Cog):
                 if not song.get_metadata():
                     logger.error("Failed to get metadata for song")
                     return
-            view = SongSelectView(songs, ctx)
+            view = SongSelectView(songs, ctx, message)
             await message.edit(embed=discord.Embed(title=f"Created song selection dialog", color=discord.Color.blurple()))
             await ctx.send("Select a song:", view=view)
 
@@ -102,7 +102,7 @@ class TidalCog(commands.Cog):
         else:
             collections = [Collection(coll) for coll in results["albums"][:max_results]] +\
                     [Collection(coll) for coll in results["playlists"][:max_results]]
-            view = CollectionSelectView(collections, ctx)
+            view = CollectionSelectView(collections, ctx, message)
             await message.edit(embed=discord.Embed(title=f"Created collection selection dialog", color=discord.Color.blurple()))
             await ctx.send("Select an album:", view = view)
 
