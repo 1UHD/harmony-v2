@@ -3,11 +3,13 @@
 import discord
 from discord.ext import commands
 import tidalapi
+from tidalapi.album import Album
 from tidalapi.media import Track
+from tidalapi.playlist import Playlist
 
 from src.tools import embeds
 from src.tools.Queue import queue
-from src.tools.Selections import AlbumSelectView, SongSelectView
+from src.tools.Selections import Collection, CollectionSelectView, SongSelectView
 from src.tools.TidalHelper import tidal_helper
 from src.tools.TidalSong import TidalSong
 from src.tools.logging import logger
@@ -63,29 +65,46 @@ class TidalCog(commands.Cog):
 
     @tidal.command(name="album", description="Add a tidal album to the queue")
     async def album(self, ctx: commands.Context, prompt: str, max_results: int = 1) -> None:
+        await self._collection(ctx, prompt, max_results, [Album])
+
+    @tidal.command(name="playlist", description="Add a tidal playlist to the queue")
+    async def playlist(self, ctx: commands.Context, prompt: str, max_results: int = 1) -> None:
+        await self._collection(ctx, prompt, max_results, [Playlist])
+
+    @tidal.command(name="collection", description="Add a tidal album or playlist to the queue")
+    async def collection(self, ctx: commands.Context, prompt: str, max_results: int = 1) -> None:
+        await self._collection(ctx, prompt, max_results, [Playlist, Album])
+
+    async def _collection(self, ctx: commands.Context, prompt: str, max_results: int=1, coll_types = [Album]) -> None:
         message = await embeds.send_embed(title=f"Searching for {prompt}.", color=discord.Color.yellow(), context=ctx)
-        results = tidal_helper.query(prompt, max_results, tidalapi.Album)
+        results = tidal_helper.query(prompt, max_results, coll_types)
         if max_results == 1:
-            album = results["top_hit"]
-            if not album:
+            collection = results["top_hit"]
+            if not collection:
                 await embeds.send_error(title="Found no results", context=ctx)
                 return
 
             await message.edit(embed=discord.Embed(title=f"Adding tracks to queue",color=discord.Color.yellow()))
 
-            for track in album.tracks():
+            for track in collection.tracks():
                 song = TidalSong(track)
                 song.get_metadata()
                 queue.add(song)
 
             await queue.load_songs()
-            await message.edit(embed=discord.Embed(title=f"Added album {album.name} with {album.num_tracks} tracks to the queue"))
-        else:
-            albums = results["albums"][:max_results]
-            view = AlbumSelectView(albums, ctx)
-            await message.edit(embed=discord.Embed(title=f"Created song selection dialog", color=discord.Color.blurple()))
-            await ctx.send("Select an album:", view = view)
+            coll_type = ""
+            if isinstance(collection, Album):
+                coll_type = "album"
+            else:
+                coll_type = "playlist"
 
+            await message.edit(embed=discord.Embed(title=f"Added {coll_type} {collection.name} with {collection.num_tracks} tracks to the queue"))
+        else:
+            collections = [Collection(coll) for coll in results["albums"][:max_results]] +\
+                    [Collection(coll) for coll in results["playlists"][:max_results]]
+            view = CollectionSelectView(collections, ctx)
+            await message.edit(embed=discord.Embed(title=f"Created collection selection dialog", color=discord.Color.blurple()))
+            await ctx.send("Select an album:", view = view)
 
 
 

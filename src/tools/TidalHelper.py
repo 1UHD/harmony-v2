@@ -15,24 +15,12 @@ class TidalHelper:
             logger.error("Failed to authenticate tidal")
         self.session = session
 
-    def query(self, query: str, limit:int=1, type = Track) -> SearchResults:
-        results = self.session.search(query, [type], limit=limit)
+    def query(self, query: str, limit:int=1, types = [Track]) -> SearchResults:
+        results = self.session.search(query, types, limit=limit)
         return results
 
     def get_track(self, track_id: str) -> tidalapi.Track:
         return self.session.track(track_id)
-
-    def get_track_info(self, track: tidalapi.Track) -> dict[str,str]:
-        info_dict = {}
-        info_dict["title"] = track.title
-        info_dict["duration"] = track.duration
-        info_dict["upload_date"] = track.date_added
-
-        artist = track.artist
-        if artist:
-            info_dict["artist"] = artist.name
-
-        return info_dict
 
     def get_link(self, track: tidalapi.Track) -> str:
         stream = track.get_stream()
