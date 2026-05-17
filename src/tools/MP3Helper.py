@@ -1,3 +1,4 @@
+from typing import override
 import discord
 from mutagen.mp3 import MP3
 from src.tools.Queue import queue
@@ -9,16 +10,18 @@ import os
 class MP3Song(Song):
 
     def __init__(self, name: str, path: str):
-        super().__init__(url=f"{path}{'/' if not path.endswith('/') else ''}{name}")
+        self.audio_url = f"{path}{'/' if not path.endswith('/') else ''}{name}"
         self.title = name.replace(".mp3", "")
+        super().__init__()
 
-    def _get_audio(self) -> discord.FFmpegPCMAudio:
-        audio = MP3(self.url)
-        
+    @override
+    def get_metadata(self) -> bool:
+        audio = MP3(self.audio_url)
+
         self.length = round(audio.info.length)
         self.thumbnail = None
 
-        return discord.FFmpegPCMAudio(self.url)
+        return True
 
 class MP3Loader:
     
@@ -78,6 +81,7 @@ class MP3Loader:
         for s in paths:
             try:
                 song = MP3Song(name=s, path=self.path)
+                song.get_metadata()
 
                 queue.add(song=song)
 
