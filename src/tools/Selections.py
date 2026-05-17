@@ -101,7 +101,7 @@ class CollectionSelect(discord.ui.Select):
                 queue.add(song)
         await queue.load_songs()
         coll_type = collection.collection_type
-        await self.status_msg.edit(embed=discord.Embed(title=f"Added {coll_type} {collection.name} with {collection.num_tracks} tracks to the queue", color=discord.Color.blurple())
+        await self.status_msg.edit(embed=discord.Embed(title=f"Added {coll_type} {collection.name} with {collection.num_tracks} tracks to the queue", color=discord.Color.blurple()))
         self.disabled = True
         self.placeholder = collection.name[:100]
         await interaction.edit_original_response(view=self.view)

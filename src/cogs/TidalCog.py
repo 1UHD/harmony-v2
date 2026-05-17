@@ -98,7 +98,7 @@ class TidalCog(commands.Cog):
             else:
                 coll_type = "playlist"
 
-            await message.edit(embed=discord.Embed(title=f"Added {coll_type} {collection.name} with {collection.num_tracks} tracks to the queue"))
+            await message.edit(embed=discord.Embed(title=f"Added {coll_type} {collection.name} with {collection.num_tracks} tracks to the queue", color=discord.Color.blurple()))
         else:
             collections = [Collection(coll) for coll in results["albums"][:max_results]] +\
                     [Collection(coll) for coll in results["playlists"][:max_results]]
