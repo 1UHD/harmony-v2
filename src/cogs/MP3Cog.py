@@ -56,7 +56,7 @@ class MP3Cog(commands.Cog):
         
         status = mp3loader.add_to_queue(path=directory)
         if status == "error_no_file":
-            await embeds.send_error(title="Directory does not contain mp3 files")
+            await embeds.send_error(title="Directory does not contain mp3 files", context=ctx)
             return
         
         if status == "error_not_found":
