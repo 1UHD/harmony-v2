@@ -33,31 +33,28 @@ class Misc(commands.Cog):
             await embeds.send_embed(title="The bot is not playing.", context=ctx)
             return
 
-        time_elapsed = round(timer.get_time_elapsed())
-        song_length = queue.get_current().length
-
-        logger.debug(f"{time_elapsed}/{song_length}")
-
-        progress = ["-"] * 15
-        progress_index = math.ceil(time_elapsed / (song_length / 15)) - 1
-        progress[progress_index] = "o"
-
         current = queue.get_current()
 
+        time_elapsed = round(timer.get_time_elapsed())
+
+        progress = ["-"] * 15
+        progress_index = math.ceil(time_elapsed / (current.length / 15)) - 1
+        progress[progress_index] = "o"
+
         desc = f"""
-            by **{current.artist}**
+            {f"by **{current.artist}**" if current.artist != "" else ""}
 
-            {self._seconds_to_time(time_elapsed)} {''.join(i for i in progress)} {self._seconds_to_time(song_length)}
+            {f"{self._seconds_to_time(time_elapsed)} {''.join(i for i in progress)} {self._seconds_to_time(current.length)}" if current.length > 0 else ""}
 
-            Views: {current.prettify_number(current.views)}
-            Likes: {current.prettify_number(current.likes)}
-            Uploaded on {current.prettify_upload_date()}
+            {f"Views: {current.prettify_number(current.views)}" if current.views > 0 else ""}
+            {f"Likes: {current.prettify_number(current.likes)}" if current.likes > 0 else ""}
+            {f"Uploaded on {current.prettify_upload_date()}" if current.upload_date != "" else ""}
         """
 
         await embeds.send_embed(
             title=current.title,
             description=desc,
-            thumbnail=queue.get_current().thumbnail,
+            thumbnail={current.thumbnail if current.thumbnail != "" else None},
             context=ctx
         )
     
