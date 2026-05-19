@@ -27,6 +27,7 @@ class MP3Loader:
     
     def __init__(self) -> None:
         self.path = settings.mp3_path
+        self.preload_mp3s()
 
     def _correct_path(self, path: str) -> str:
         if path.split("")[-1] != "/":
@@ -65,7 +66,7 @@ class MP3Loader:
         
         mp3_files = sorted(mp3_files)
         return mp3_files
-    
+
     def add_to_queue(self, path: str) -> str:
         self._update_path()
 
@@ -89,6 +90,22 @@ class MP3Loader:
                 pass
 
         return "success"
+
+    def preload_mp3s(self) -> None:
+        worked = self.add_to_queue(self.path)
+
+        match worked:
+            case "success":
+                logger.info("Added mp3 files to queue.", True)
+                return
+
+            case "error_not_found":
+                logger.error("Couldn't load mp3s: Path does not exist.")
+                return
+
+            case "error_no_file":
+                logger.error("Couldn't load mp3s: Path does not contain any mp3 files.")
+                return
 
     def add_specific_file(self, name: str) -> str:
         self._update_path()
