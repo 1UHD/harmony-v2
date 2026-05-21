@@ -26,7 +26,6 @@ async def send_embed(title: str,
         embed.set_footer(text=footer)
 
     if thumbnail:
-        logger.debug(thumbnail)
         embed.set_thumbnail(url=thumbnail)
 
     if image:

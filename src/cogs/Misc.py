@@ -54,7 +54,7 @@ class Misc(commands.Cog):
         await embeds.send_embed(
             title=current.title,
             description=desc,
-            thumbnail={current.thumbnail if current.thumbnail != "" else None},
+            thumbnail=current.thumbnail,
             context=ctx
         )
     
