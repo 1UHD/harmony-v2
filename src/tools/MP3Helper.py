@@ -10,9 +10,9 @@ import os
 class MP3Song(Song):
 
     def __init__(self, name: str, path: str):
+        super().__init__()
         self.audio_url = f"{path}{'/' if not path.endswith('/') else ''}{name}"
         self.title = name.replace(".mp3", "")
-        super().__init__()
 
     @override
     def get_metadata(self) -> bool:
@@ -23,22 +23,29 @@ class MP3Song(Song):
 
         return True
 
+    @override
+    def get_audio(self) -> None:
+        self.audio = discord.FFmpegPCMAudio(self.audio_url)
+
 class MP3Loader:
     
     def __init__(self) -> None:
-        self.path = settings.mp3_path
+        self._update_path()
         self.preload_mp3s()
 
     def _correct_path(self, path: str) -> str:
-        if path.split("")[-1] != "/":
+        if path[-1] != "/":
             return path + "/"
         else:
             return path
         
     def _correct_file_path(self, path: str) -> str:
+        if not path:
+            return path
+
         path = path.replace("..", "")
 
-        if path.split("")[0] != "/":
+        if path[0] != "/":
             return "/" + path
         else:
             return path
@@ -47,8 +54,6 @@ class MP3Loader:
         self.path = self._correct_path(settings.mp3_path)
 
     def _find_files_in_directory(self, dir_path: str) -> list[str]:
-        self._update_path()
-
         if not self.path:
             return
         
@@ -68,10 +73,10 @@ class MP3Loader:
         return mp3_files
 
     def add_to_queue(self, path: str) -> str:
-        self._update_path()
 
         dir_path = self.path + self._correct_file_path(path=path)
         if not os.path.exists(path=dir_path):
+            logger.error(f"Not found {dir_path}")
             return "error_not_found"
 
         paths = self._find_files_in_directory(dir_path=dir_path)
@@ -81,18 +86,24 @@ class MP3Loader:
 
         for s in paths:
             try:
-                song = MP3Song(name=s, path=self.path)
-                song.get_metadata()
+                song = MP3Song(name=s, path=dir_path)
+                if not song.get_metadata():
+                    logger.error(f"Failed to load metadata for {dir_path}{s}")
+                else:
+                    logger.debug(f"Loaded {dir_path}{s}")
 
                 queue.add(song=song)
 
-            except Exception:
-                pass
+            except Exception as e:
+                logger.error(f"Failed to load {dir_path}{s} with exception {e}")
 
         return "success"
 
     def preload_mp3s(self) -> None:
-        worked = self.add_to_queue(self.path)
+        if not self.path:
+            return
+
+        worked = self.add_to_queue("")
 
         match worked:
             case "success":
@@ -100,7 +111,7 @@ class MP3Loader:
                 return
 
             case "error_not_found":
-                logger.error("Couldn't load mp3s: Path does not exist.")
+                logger.error(f"Couldn't load mp3s: Path {self.path} does not exist.")
                 return
 
             case "error_no_file":
