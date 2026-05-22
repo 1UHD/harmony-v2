@@ -1,6 +1,7 @@
 import tidalapi
 from src.tools.TidalSong import TidalSong
 from src.tools.logging import logger
+from src.tools.Timer import timer
 import src.tools.Song as Song
 import asyncio
 
@@ -77,6 +78,19 @@ class Queue:
                 result.append(f"{i + 1}. {song.title}")
         
         return "\n".join(result)
+
+    def get_remaining_time(self) -> int:
+        remaining = 0
+
+        if self.current_index != len(self.queue)-1:
+            for s in range(self.current_index, len(self.queue)):
+                if self.queue[s].length:
+                    remaining += self.queue[s].length
+
+        if self.current:
+            remaining += self.current.length - timer.get_time_elapsed()
+
+        return remaining
     
     def pause(self) -> None:
         self.paused = True

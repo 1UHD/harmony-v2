@@ -223,6 +223,7 @@ class QueueCog(commands.Cog):
 
         if not song.get_metadata():
             logger.error(f"Failed to load youtube url {yt_url}")
+            await embeds.send_error("Couldn't load video.")
             return 
 
         await queue.load_songs()
