@@ -34,6 +34,8 @@ class MP3Loader:
         self.preload_mp3s()
 
     def _correct_path(self, path: str) -> str:
+        if not path:
+            return ""
         if path[-1] != "/":
             return path + "/"
         else:
