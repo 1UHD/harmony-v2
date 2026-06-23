@@ -84,14 +84,14 @@ class SongListPrettifier:
 
     async def send_as_embed(self, title: str, song_list: list[Song], ctx: commands.Context) -> None:
         pages = self.prettify(song_list)
-        time_remaining = self.prettify_duration(queue.get_duration())
+        #time_remaining = self.prettify_duration(queue.get_duration())
 
         if len(pages) == 1:
             await send_embed(
                 title=f"{title} (Page 1/1)",
                 description=pages[0],
                 context=ctx,
-                footer=f"Remaining: {time_remaining}"
+                #footer=f"Remaining: {time_remaining}"
             )
         else:
             view = SongListPrettifierView(title=title, pages=pages)
@@ -99,7 +99,7 @@ class SongListPrettifier:
                 title=f"{title} (Page 1/{len(pages)})",
                 description=pages[0],
                 context=ctx, view=view,
-                footer=f"Remaining: {time_remaining}"
+                #footer=f"Remaining: {time_remaining}"
             )
         
 list_prettifier = SongListPrettifier()
