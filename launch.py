@@ -18,6 +18,7 @@ def main() -> None:
     parser.add_argument("--test", action="store_true", help="Enable testing mode.")
     parser.add_argument("--no-update", action="store_true", help="Disable the auto updater.")
     parser.add_argument("--update", action="store_true", help="Update the bot.")
+    parser.add_argument("--tidal", action="store_true", help="Activate Tidal Support.")
 
     args = parser.parse_args()
 
@@ -25,9 +26,13 @@ def main() -> None:
     settings.debug_mode = args.debug
     settings.testing_mode = args.test
     settings.no_update = args.no_update
+    settings.tidal = args.tidal
 
     from src.tools.logging import logger
     
+    if args.tidal:
+        logger.info(f"Launching with Tidal support.", True)
+
     if args.mp3:
         logger.info(f"Launching with file access for {settings.mp3_path}.", True)
 

@@ -1,7 +1,6 @@
 import tidalapi
 from src.tools.TidalSong import TidalSong
 from src.tools.logging import logger
-from src.tools.Timer import timer
 import src.tools.Song as Song
 import asyncio
 

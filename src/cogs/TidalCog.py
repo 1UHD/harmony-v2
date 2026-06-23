@@ -1,5 +1,3 @@
-
-
 import discord
 from discord.ext import commands
 import tidalapi
@@ -7,6 +5,7 @@ from tidalapi.album import Album
 from tidalapi.media import Track
 from tidalapi.playlist import Playlist
 
+from src.settings import tidal as tidal_enabled
 from src.tools import embeds
 from src.tools.Queue import queue
 from src.tools.Selections import Collection, CollectionSelectView, SongSelectView
@@ -18,10 +17,17 @@ class TidalCog(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self.bot = bot
 
+    async def interaction_check(self, interaction: discord.Interaction) -> bool:
+        if not tidal_enabled:
+            await embeds.send_error(title="Tidal support is not enabled.", interaction=interaction)
+            return False
+        
+        return True
+
     @commands.hybrid_group(name="tidal", description="Provides access to the tidal api")
     async def tidal(self, ctx: commands.Context) -> None:
         if not ctx.invoked_subcommand:
-            await embed.send_error(title="Wrong usage, see `/help tidal` for more info.", context=ctx)
+            await embeds.send_error(title="Wrong usage, see `/help tidal` for more info.", context=ctx)
 
     @tidal.command(name="help", description="Provides help info for tidal")
     async def help(self, ctx: commands.Context) -> None:

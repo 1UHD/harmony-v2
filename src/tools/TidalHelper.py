@@ -1,5 +1,6 @@
 from pathlib import Path
 import tidalapi
+import src.settings as settings
 from tidalapi.album import Album
 from tidalapi.media import Media, Track
 from tidalapi.session import SearchResults, StreamNotAvailable
@@ -7,13 +8,13 @@ from tidalapi.session import SearchResults, StreamNotAvailable
 from src.tools.logging import logger
 
 class TidalHelper:
-
     def __init__(self):
-        session_file = Path("tidal-session-oauthn.json")
-        session = tidalapi.Session()
-        if not session.login_session_file(session_file):
-            logger.error("Failed to authenticate tidal")
-        self.session = session
+        if settings.tidal:
+            session_file = Path("tidal-session-oauthn.json")
+            session = tidalapi.Session()
+            if not session.login_session_file(session_file):
+                logger.error("Failed to authenticate tidal")
+            self.session = session
 
     def query(self, query: str, limit:int=1, types = [Track]) -> SearchResults:
         results = self.session.search(query, types, limit=limit)
