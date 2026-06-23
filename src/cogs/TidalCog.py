@@ -24,6 +24,23 @@ class TidalCog(commands.Cog):
         
         return True
 
+    async def cog_check(self, interaction: discord.Interaction) -> bool:
+        if not tidal_enabled:
+            await embeds.send_error(title="Tidal support is not enabled.", interaction=interaction)
+            return False
+        
+        return True
+
+    async def cog_command_error(self, ctx: commands.Context, error: Exception) -> None:
+        if isinstance(error, commands.CheckFailure):
+            return
+            # interaction_check() and cog_check() return this error when they return False.
+            # since it doesn't actually break anything we just suppress it
+            # I know I don't write any documentation normally, but my prof said we should
+            # get used to documenting our code so I'll start doing it now.
+        
+        raise error
+
     @commands.hybrid_group(name="tidal", description="Provides access to the tidal api")
     async def tidal(self, ctx: commands.Context) -> None:
         if not ctx.invoked_subcommand:
