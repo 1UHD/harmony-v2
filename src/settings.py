@@ -20,6 +20,7 @@ debug_mode = False
 testing_mode = False
 no_update = False
 tidal = False
+no_playlist = False
 
 bitrate = 128
 

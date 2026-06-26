@@ -19,6 +19,7 @@ def main() -> None:
     parser.add_argument("--no-update", action="store_true", help="Disable the auto updater.")
     parser.add_argument("--update", action="store_true", help="Update the bot.")
     parser.add_argument("--tidal", action="store_true", help="Activate Tidal Support.")
+    parser.add_argument("--no-playlist", action="store_true", help="Disable playlist loading on launch.")
 
     args = parser.parse_args()
 
@@ -27,9 +28,13 @@ def main() -> None:
     settings.testing_mode = args.test
     settings.no_update = args.no_update
     settings.tidal = args.tidal
+    settings.no_playlist = args.no_playlist
 
     from src.tools.logging import logger
     
+    if args.no_playlist:
+        logger.warning(f"Launching without playlist preloading.", True)
+
     if args.tidal:
         logger.info(f"Launching with Tidal support.", True)
 

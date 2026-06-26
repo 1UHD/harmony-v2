@@ -3,6 +3,7 @@ import json
 import time
 import asyncio
 
+from src.settings import no_playlist
 from src.tools.YTSong import YTSong
 from src.tools.Song import Song
 from src.tools.logging import logger
@@ -42,7 +43,9 @@ class PlaylistUtilityCsv:
     def __init__(self) -> None:
         self.path = __file__.replace("/src/tools/Playlist.py", "/playlists/")
         self.playlists = []
-        self._initialize_filepath()
+
+        if not no_playlist:
+            self._initialize_filepath()
 
     def _initialize_filepath(self) -> None:
         if not os.path.exists(self.path):
