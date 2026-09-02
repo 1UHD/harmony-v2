@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import random
 import asyncio
 
 from src.settings import no_playlist
@@ -52,9 +53,12 @@ class PlaylistUtilityCsv:
             os.mkdir(self.path)
 
         playlists = self._get_all_playlists()
+
+        logger.debug(f"found playlists: {playlists}")
         
         if playlists:
             for playlist in playlists:
+                logger.debug(f"now trying to read {playlist}")
                 self.read_playlist(playlist)
         else:
             logger.info("Didn't find any playlists.")
@@ -69,7 +73,7 @@ class PlaylistUtilityCsv:
                     playlist_files.append(file)
 
         except Exception as e:
-            logger.error("Coudln't load playlists.", True)
+            logger.error("Couldn't load playlists.", True)
             logger.error(e)
             return
         
@@ -91,7 +95,7 @@ class PlaylistUtilityCsv:
         }
 
     def _json_to_song(self, j: dict) -> Song:
-        s = Song(url=j["url"])
+        s = YTSong(url=j["url"])
         s.title = j["title"]
         s.artist = j["artist"]
         s.artist_subs = j["artist_subs"]
@@ -210,6 +214,18 @@ class PlaylistUtilityCsv:
         for s in pl.songs:
             queue.add(song=s)
 
+    def shuffle(self, pl: Playlist) -> None:
+        if pl.get_song_amount() < 1:
+            logger.warning("cant queue a playlist with 0 songs, aborting")
+
+        shuffled = pl.songs.copy()
+        random.shuffle(shuffled)
+
+        for s in shuffled:
+            queue.add(song=s)
+
+        shuffled[0].get_audio()
+
 
 class PlaylistUtility:
 
@@ -279,6 +295,13 @@ class PlaylistUtility:
 
     def queue_playlist(self, playlist: Playlist) -> None:
         for url in playlist.songs:
+            song = Song(url=url)
+            queue.add(song=song)
+
+    def shuffle_playlist(self, playlist: Playlist) -> None:
+        shuffled_songs = playlist.songs.copy()
+
+        for url in shuffled_songs:
             song = Song(url=url)
             queue.add(song=song)
 
