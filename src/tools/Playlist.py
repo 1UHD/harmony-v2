@@ -105,7 +105,7 @@ class PlaylistUtilityCsv:
         s.upload_date = j["upload_date"]
         s.length = j["length"]
         s.is_restricted = j["is_restricted"]
-        s.audio_url = j["audio_url"]
+        #s.audio_url = j["audio_url"]
         #s.use_audio_url() #unfortunately youtube changes this so we need to refetch it
 
         return s
@@ -165,7 +165,7 @@ class PlaylistUtilityCsv:
             pl.songs.append(self._json_to_song(song))
 
         if len(pl.songs) > 0:
-            pl.songs[0].get_audio()
+            pl.songs[0].get_metadata()
 
         logger.info(f"Loaded playlist {pl.name} with {len(pl.songs)} songs")
 
@@ -224,7 +224,7 @@ class PlaylistUtilityCsv:
         for s in shuffled:
             queue.add(song=s)
 
-        shuffled[0].get_audio()
+        shuffled[0].get_metadata()
 
 
 class PlaylistUtility:
