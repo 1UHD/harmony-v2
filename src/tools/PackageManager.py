@@ -23,7 +23,7 @@ class PackageManager:
     
     def _check_for_dependency(self, package: str) -> None:
         try:
-            logger.debug(importlib.metadata.version(package))
+            logger.debug(f"Package {package} is up-to-date ({importlib.metadata.version(package)})")
         except:
             os.system(f"{sys.executable} -m pip install {package}")
 

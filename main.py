@@ -33,8 +33,8 @@ class Main:
                     await self.bot.load_extension(f"src.cogs.{cog.name[:-3]}")
                     logger.info(f"Initialized Cog: {cog.name[:-3]}")
                 except Exception as e:
-                        traceback.print_exc()
-                        logger.error(f"Error while loading extension {cog.name}: {e}")
+                    traceback.print_exc()
+                    logger.error(f"Error while loading extension {cog.name}: {e}")
 
         try:
             await self.bot.tree.sync()

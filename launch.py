@@ -2,8 +2,15 @@ import argparse
 
 def main() -> None:
     from src.tools.setup import setup
+
     if not setup._check_if_file_exists():
         setup._setup()
+
+    if not setup.check_if_packages_exist():
+        from src.tools.logging import logger
+        logger.error("Some packages are missing. Are you using the correct python executable?")
+        logger.error("In case you haven't set up Harmony, try running python launch.py --setup")
+        return
     
     import src.settings as settings
 
@@ -20,6 +27,7 @@ def main() -> None:
     parser.add_argument("--update", action="store_true", help="Update the bot.")
     parser.add_argument("--tidal", action="store_true", help="Activate Tidal Support.")
     parser.add_argument("--no-playlist", action="store_true", help="Disable playlist loading on launch.")
+    parser.add_argument("--setup", action="store_true", help="Initiate bot setup.")
 
     args = parser.parse_args()
 
@@ -50,6 +58,17 @@ def main() -> None:
     if args.update:
         from src.tools.PackageManager import projectUpdater
         projectUpdater.update_project()
+        return
+
+    if args.setup:
+        logger.warning("You're currently trying to force-setup Harmony. Doing this will overwrite your current bot token!", True)
+
+        action = False
+        user_input = input("Proceed? [y/N] ")
+
+        if user_input.lower() == "y":
+            setup._setup()
+
         return
 
     from src.tools.PackageManager import projectUpdater

@@ -18,6 +18,9 @@ class Setup:
 
     def __init__(self) -> None:
         self.path = __file__.replace("/tools/setup.py", "/bot_token.py")
+        self.packages = [
+            "discord", "bs4", "certifi", "mutagen", "requests", "yt_dlp", "nacl", "davey"
+        ]
 
     def _check_if_file_exists(self) -> bool:
         return os.path.exists(self.path)
@@ -50,12 +53,25 @@ is stored locally and will never be shared with third parties.
         bot_token = input(f"{Colors.CYAN}Enter your bot token:{Colors.END} ")
         self._create_token_file(bot_token)
 
-        packages = [
-            "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp", "PyNaCl", "davey"
-        ]
+        #packages = [
+        #    "discord", "beautifulsoup4", "certifi", "mutagen", "requests", "yt_dlp", "PyNaCl", "davey"
+        #]
 
-        for package in packages:
+        for package in self.packages:
             if not importlib.util.find_spec(package):
                 os.system(f"{sys.executable} -m pip install {package}")
+
+    def check_if_packages_exist(self) -> bool:
+        packages = [
+            "discord", "bs4", "certifi", "mutagen", "requests", "yt_dlp", "nacl", "davey"
+        ]
+
+        all_exist = True
+
+        for package in self.packages:
+            if not importlib.util.find_spec(package):
+                all_exist = False
+
+        return all_exist
 
 setup = Setup()
